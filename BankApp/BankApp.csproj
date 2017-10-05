@@ -45,14 +45,31 @@
     <Compile Include="BankObjects\Account.cs" />
     <Compile Include="BankObjects\Customer.cs" />
     <Compile Include="Database.cs" />
-    <Compile Include="FileHandler.cs" />
+    <Compile Include="Exceptions\ParseFileException.cs" />
+    <Compile Include="Exceptions\ParseRowException.cs" />
+    <Compile Include="Exceptions\TransferException.cs" />
+    <Compile Include="Exceptions\TransferInsufficientFundsException.cs" />
+    <Compile Include="Exceptions\TransferNegativeAmountException.cs" />
+    <Compile Include="Exceptions\TransferInvalidReceiverException.cs" />
+    <Compile Include="IO\FileReader.cs" />
+    <Compile Include="IO\FileWriter.cs" />
+    <Compile Include="IO\FileRow.cs" />
     <Compile Include="BankObjects\Identified.cs" />
-    <Compile Include="ISerializeable.cs" />
+    <Compile Include="IO\ISerializable.cs" />
+    <Compile Include="Exceptions\ParseException.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Data\bankdata-small.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\bankdata.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

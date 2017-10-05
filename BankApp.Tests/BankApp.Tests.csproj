@@ -48,7 +48,10 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AccountTransferTests.cs" />
+    <Compile Include="CustomerSerializeTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="AccountSerializeTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -1,11 +1,11 @@
 ﻿using System.Globalization;
+using BankApp.IO;
 
 namespace BankApp.BankObjects
 {
-	public class Customer : Identified, ISerializeable
+	public sealed class Customer : Identified, ISerializable
 	{
-		public long ID { get; private set; }
-		public long OrganisationID { get; private set; }
+		public string OrganisationID { get; private set; }
 		public string OrganisationName { get; private set; }
 		public string Address { get; private set; }
 		public string City { get; private set; }
@@ -14,29 +14,42 @@ namespace BankApp.BankObjects
 		public string Country { get; private set; }
 		public string Telephone { get; private set; }
 
-		public string[] Serialize() => new [] { 
-			ID.ToString(CultureInfo.InvariantCulture),
-			OrganisationID.ToString(CultureInfo.InvariantCulture),
+		public Customer()
+		{ }
+
+		public Customer(FileRow data) : this()
+		{
+			this.Deserialize(data);
+		}
+
+		public Customer(string data) : this(new FileRow(data))
+		{ }
+
+		public FileRow Serialize() => new FileRow (
+			ID,
+			OrganisationID,
 			OrganisationName,
 			Address,
 			City,
 			Region,
 			PostCode,
 			Country,
-			Telephone,
-		};
+			Telephone
+		);
 
-		public void Deserialize(string[] data)
+		public void Deserialize(FileRow data)
 		{
-			ID = long.Parse(data[0], CultureInfo.InvariantCulture);
-			OrganisationID = long.Parse(data[1], CultureInfo.InvariantCulture);
-			OrganisationName = data[2];
-			Address = data[3];
-			City = data[4];
-			Region = data[5];
-			PostCode = data[6];
-			Country = data[7];
-			Telephone = data[8];
+			ID = data.TakeUInt();
+			OrganisationID = data.TakeString();
+			OrganisationName = data.TakeString();
+			Address = data.TakeString();
+			City = data.TakeString();
+			Region = data.TakeString();
+			PostCode = data.TakeString();
+			Country = data.TakeString();
+			Telephone = data.TakeString();
+
+			data.Close();
 		}
 	}
 }
