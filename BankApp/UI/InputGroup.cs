@@ -67,6 +67,7 @@ namespace BankApp.UI
 
 			// Empty the stream
 			while (Console.KeyAvailable) Console.ReadKey(true);
+			Console.ResetColor();
 		}
 
 		private void Draw()
@@ -75,12 +76,17 @@ namespace BankApp.UI
 			{
 				if (this.selectedIndex == i) continue;
 
+				Console.ResetColor();
 				Console.SetCursorPosition(0, this.position + i * 2);
 				this.elements[i].Draw();
 			}
 
-			Console.SetCursorPosition(0, this.position + this.selectedIndex * 2);
-			this.Selected?.Draw();
+			if (this.Selected != null)
+			{
+				Console.ResetColor();
+				Console.SetCursorPosition(0, this.position + this.selectedIndex * 2);
+				this.Selected.Draw();
+			}
 		}
 
 		private void Update()
@@ -99,7 +105,7 @@ namespace BankApp.UI
 					Selected?.OnInput(info);
 				}
 
-			} while (Console.KeyAvailable || !running);
+			} while (Console.KeyAvailable && running);
 		}
 
 		public void SelectNext()
