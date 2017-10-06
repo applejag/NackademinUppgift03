@@ -59,6 +59,9 @@
     <Compile Include="Exceptions\ParseException.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UI\Elements\Button.cs" />
+    <Compile Include="UI\InputGroup.cs" />
+    <Compile Include="UI\Elements\Element.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
