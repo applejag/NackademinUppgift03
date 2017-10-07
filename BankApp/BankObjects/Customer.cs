@@ -19,7 +19,7 @@ namespace BankApp.BankObjects
 
 		public Customer(FileRow data) : this()
 		{
-			this.Deserialize(data);
+			Deserialize(data);
 		}
 
 		public Customer(string data) : this(new FileRow(data))

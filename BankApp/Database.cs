@@ -15,8 +15,8 @@ namespace BankApp
 		{
 			using (var file = new FileReader(path))
 			{
-				this.Customers = file.ReadSerializeableGroup<Customer>();
-				this.Accounts = file.ReadSerializeableGroup<Account>();
+				Customers = file.ReadSerializeableGroup<Customer>();
+				Accounts = file.ReadSerializeableGroup<Account>();
 			}
 		}
 

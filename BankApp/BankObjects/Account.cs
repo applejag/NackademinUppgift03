@@ -17,7 +17,7 @@ namespace BankApp.BankObjects
 
 		public Account(FileRow data) : this()
 		{
-			this.Deserialize(data);
+			Deserialize(data);
 		}
 
 		public Account(string data) : this(new FileRow(data))
@@ -55,9 +55,9 @@ namespace BankApp.BankObjects
 			if (receiver == this) throw new TransferInvalidReceiverException(this, receiver, amount);
 
 			if (amount < 0) throw new TransferNegativeAmountException(this, receiver, amount);
-			if (amount > this.Money) throw new TransferInsufficientFundsException(this, receiver, amount);
+			if (amount > Money) throw new TransferInsufficientFundsException(this, receiver, amount);
 
-			this.Money -= amount;
+			Money -= amount;
 			receiver.Money += amount;
 		}
 

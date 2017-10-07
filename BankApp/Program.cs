@@ -15,13 +15,29 @@ namespace BankApp
 	{
 		static void Main(string[] args)
 		{
+			Console.WriteLine("Hello world!\n");
+
+			var field1 = new TextField("Hello");
+			var field2 = new TextField("world");
+			var ok = new Button("ok");
 			Element[] elements = {
-				new Button("hello1"),
-				new Button("hello2"),
+				field1,
+				field2,
+				new Button("cancel"),
+				ok,
 			};
 
-			InputGroup.RunGroup(elements);
-			Console.Clear();
+			InputGroup group = InputGroup.RunGroup(elements);
+
+			if (group.Selected == ok)
+			{
+				Console.WriteLine("field1: {0}", field1.Result);
+				Console.WriteLine("field2: {0}", field2.Result);
+			}
+			else
+			{
+				Console.WriteLine("cancelled");
+			}
 
 			Console.ReadKey();
 		}

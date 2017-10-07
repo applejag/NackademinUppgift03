@@ -10,8 +10,8 @@ namespace BankApp.Exceptions
 		public TransferInvalidReceiverException(Account sender, Account receiver, decimal amount)
 			: base(sender, receiver, amount)
 		{
-			this.IsNull = this.Receiver == null;
-			this.IsSelf = this.Sender == this.Receiver;
+			IsNull = Receiver == null;
+			IsSelf = Sender == Receiver;
 		}
 	}
 }

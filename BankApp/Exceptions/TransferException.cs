@@ -11,9 +11,9 @@ namespace BankApp.Exceptions
 
 		public TransferException(Account sender, Account receiver, decimal amount)
 		{
-			this.Sender = sender;
-			this.Receiver = receiver;
-			this.Amount = amount;
+			Sender = sender;
+			Receiver = receiver;
+			Amount = amount;
 		}
 	}
 }

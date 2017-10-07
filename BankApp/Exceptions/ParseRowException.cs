@@ -13,8 +13,8 @@ namespace BankApp.Exceptions
 					: $"Missing <{valueType.Name}> value at index [{index}]."
 				, innerException)
 		{
-			this.Index = index;
-			this.ValueType = valueType;
+			Index = index;
+			ValueType = valueType;
 		}
 
 		public ParseRowException(Type valueType, string data, int index)
@@ -24,8 +24,8 @@ namespace BankApp.Exceptions
 		public ParseRowException(int index, string message)
 			: base(message)
 		{
-			this.Index = index;
-			this.ValueType = null;
+			Index = index;
+			ValueType = null;
 		}
 	}
 }

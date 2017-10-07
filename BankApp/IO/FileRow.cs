@@ -51,7 +51,7 @@ namespace BankApp.IO
 		{
 			if (Count == 0) throw new ParseRowException(typeof(string), null, Index);
 
-			return this.dataQueue.Dequeue();
+			return dataQueue.Dequeue();
 		}
 
 		/// <summary>
@@ -62,7 +62,7 @@ namespace BankApp.IO
 		{
 			if (Count == 0) throw new ParseRowException(typeof(decimal), null, Index);
 
-			string data = this.dataQueue.Dequeue();
+			string data = dataQueue.Dequeue();
 			try
 			{
 				return decimal.Parse(data.Replace(',', '.'), CultureInfo.InvariantCulture);
@@ -81,7 +81,7 @@ namespace BankApp.IO
 		{
 			if (Count == 0) throw new ParseRowException(typeof(long), null, Index);
 
-			string data = this.dataQueue.Dequeue();
+			string data = dataQueue.Dequeue();
 			try
 			{
 				return long.Parse(data, CultureInfo.InvariantCulture);
@@ -100,7 +100,7 @@ namespace BankApp.IO
 		{
 			if (Count == 0) throw new ParseRowException(typeof(uint), null, Index);
 
-			string data = this.dataQueue.Dequeue();
+			string data = dataQueue.Dequeue();
 			try
 			{
 				return uint.Parse(data, CultureInfo.InvariantCulture);
@@ -119,7 +119,7 @@ namespace BankApp.IO
 		{
 			if (Count == 0) throw new ParseRowException(typeof(int), null, Index);
 
-			string data = this.dataQueue.Dequeue();
+			string data = dataQueue.Dequeue();
 			try
 			{
 				return int.Parse(data, CultureInfo.InvariantCulture);
@@ -132,11 +132,11 @@ namespace BankApp.IO
 		
 		public void Close()
 		{
-			if (this.Count != 0)
+			if (Count != 0)
 			{
-				this.dataQueue.Clear();
-				throw new ParseRowException(this.Index,
-					$"Too many items. Expected <{this.Index-1}>, actual <{this.SourceCount}>.");
+				dataQueue.Clear();
+				throw new ParseRowException(Index,
+					$"Too many items. Expected <{Index - 1}>, actual <{SourceCount}>.");
 			}
 		}
 		

@@ -4,7 +4,7 @@ namespace BankApp.UI.Elements
 {
 	public class Button : Element
 	{
-		public override object Result { get; } = null;
+		public override int Width => Name.Length + 4;
 
 		public Button(string name)
 			: base(name)
@@ -16,29 +16,38 @@ namespace BankApp.UI.Elements
 			{
 				case ConsoleKey.Enter:
 				case ConsoleKey.Spacebar:
-					this.Group.SelectNextOrSubmit();
+					Group.Submit();
 					break;
 
 				case ConsoleKey.LeftArrow:
 				case ConsoleKey.UpArrow:
-					this.Group.SelectPrevious();
+					Group.SelectPrevious();
 					break;
 
 				case ConsoleKey.RightArrow:
 				case ConsoleKey.DownArrow:
-					this.Group.SelectNext();
+					Group.SelectNext();
 					break;
 			}
 		}
 
-		public override void Draw()
+		protected override void OnDraw()
 		{
-			Console.BackgroundColor = ConsoleColor.DarkCyan;
-			Console.ForegroundColor = ConsoleColor.White;
+			if (Selected)
+			{
+				Console.BackgroundColor = ConsoleColor.DarkCyan;
+				Console.ForegroundColor = ConsoleColor.White;
 
-			Console.Write(this.Selected
-				? $"[ {this.Name} ]"
-				: $"  {this.Name}  ");
+				Write($"[ {Name} ]");
+			}
+			else
+			{
+				Console.BackgroundColor = ConsoleColor.Black;
+				Console.ForegroundColor = ConsoleColor.Cyan;
+
+				Write($"< {Name} >");
+			}
+
 		}
 	}
 }

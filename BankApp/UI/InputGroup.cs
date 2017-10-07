@@ -7,6 +7,9 @@ namespace BankApp.UI
 {
 	public class InputGroup
 	{
+		public const int VERT_PADDING = 1;
+		public const int HORI_PADDING = 2;
+
 		private readonly List<Element> elements = new List<Element>();
 		private int selectedIndex = 0;
 		private readonly int position = Console.CursorTop;
@@ -21,10 +24,10 @@ namespace BankApp.UI
 			if (element == null)
 				throw new ArgumentNullException(nameof(element));
 
-			if (this.elements.Contains(element))
+			if (elements.Contains(element))
 				return false;
 
-			this.elements.Add(element);
+			elements.Add(element);
 
 			element.Group = this;
 			return true;
@@ -35,13 +38,13 @@ namespace BankApp.UI
 			if (element == null)
 				throw new ArgumentNullException(nameof(element));
 
-			if (!this.elements.Remove(element)) return false;
+			if (!elements.Remove(element)) return false;
 
 			element.Group = null;
 			return true;
 		}
 
-		public static void RunGroup(params Element[] elements)
+		public static InputGroup RunGroup(params Element[] elements)
 		{
 			var group = new InputGroup();
 
@@ -49,6 +52,8 @@ namespace BankApp.UI
 				group.AddElement(element);
 
 			group.Run();
+
+			return group;
 		}
 
 		public void Run()
@@ -68,25 +73,43 @@ namespace BankApp.UI
 			// Empty the stream
 			while (Console.KeyAvailable) Console.ReadKey(true);
 			Console.ResetColor();
+			Console.SetCursorPosition(0, position + elements.Count * 2 - 1);
 		}
 
 		private void Draw()
 		{
-			for (var i = 0; i < this.elements.Count; i++)
-			{
-				if (this.selectedIndex == i) continue;
+			int y = position;
+			int x = HORI_PADDING;
 
-				Console.ResetColor();
-				Console.SetCursorPosition(0, this.position + i * 2);
-				this.elements[i].Draw();
+			int selectedX = -1;
+			int selectedY = -1;
+
+			Element selected = Selected; // in case it's changed during draw call
+
+			Console.CursorVisible = false;
+
+			foreach (Element element in elements)
+			{
+				if (element != selected)
+					element.Redraw(x, y);
+				else
+				{
+					selectedX = x;
+					selectedY = y;
+				}
+
+				x += element.Width + HORI_PADDING;
+
+				if (x >= Console.WindowWidth)
+				{
+					y += 1 + VERT_PADDING;
+					x = HORI_PADDING;
+				}
 			}
 
-			if (this.Selected != null)
-			{
-				Console.ResetColor();
-				Console.SetCursorPosition(0, this.position + this.selectedIndex * 2);
-				this.Selected.Draw();
-			}
+			// Draw selected last
+			if (selectedX != -1 && selectedY != -1)
+				selected?.Redraw(selectedX, selectedY);
 		}
 
 		private void Update()
@@ -97,8 +120,10 @@ namespace BankApp.UI
 
 				if (info.Key == ConsoleKey.Tab)
 				{
-					if ((info.Modifiers & ConsoleModifiers.Shift) != 0) SelectPrevious();
-					else SelectNext();
+					if ((info.Modifiers & ConsoleModifiers.Shift) != 0)
+						SelectPrevious();
+					else
+						SelectNext();
 				}
 				else
 				{
@@ -136,7 +161,6 @@ namespace BankApp.UI
 		public void Submit()
 		{
 			running = false;
-			selectedIndex = -1;
 		}
 	}
 }
