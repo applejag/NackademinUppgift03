@@ -28,5 +28,10 @@ namespace BankApp
 				file.WriteSerializeableGroup(Accounts);
 			}
 		}
+
+		public List<Customer> SearchCustomers(string query)
+		{
+			throw new NotImplementedException();
+		}
 	}
 }
