@@ -68,6 +68,12 @@
     <Compile Include="UI\Elements\TextField.cs" />
     <Compile Include="UI\InputGroup.cs" />
     <Compile Include="UI\Elements\Element.cs" />
+    <Compile Include="UI\MenuMain.cs" />
+    <Compile Include="UI\Menus\IMenuItem.cs" />
+    <Compile Include="UI\Menus\MenuCreateCustomer.cs" />
+    <Compile Include="UI\Menus\MenuCustomerPage.cs" />
+    <Compile Include="UI\Menus\MenuLoadDatabase.cs" />
+    <Compile Include="UI\Menus\MenuSearchForCustomer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

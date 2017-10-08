@@ -12,12 +12,29 @@ namespace BankApp.UI
 
 		private readonly List<Element> elements = new List<Element>();
 		private int selectedIndex = 0;
-		private readonly int position = Console.CursorTop;
+		private int position;
 		private bool running;
 
 		public Element Selected => (selectedIndex >= 0 && selectedIndex < elements.Count)
 			? elements[selectedIndex]
 			: null;
+
+		public InputGroup()
+		{ }
+
+		public InputGroup(params Element[] elements)
+			: this()
+		{
+			foreach (Element element in elements)
+				AddElement(element);
+		}
+
+		public InputGroup(IEnumerable<Element> elements)
+			: this()
+		{
+			foreach (Element element in elements)
+				AddElement(element);
+		}
 
 		public bool AddElement(Element element)
 		{
@@ -44,12 +61,18 @@ namespace BankApp.UI
 			return true;
 		}
 
+		public static InputGroup RunGroup(IEnumerable<Element> elements)
+		{
+			var group = new InputGroup(elements);
+
+			group.Run();
+
+			return group;
+		}
+
 		public static InputGroup RunGroup(params Element[] elements)
 		{
-			var group = new InputGroup();
-
-			foreach (Element element in elements)
-				group.AddElement(element);
+			var group = new InputGroup(elements);
 
 			group.Run();
 
@@ -61,6 +84,7 @@ namespace BankApp.UI
 			if (running)
 				throw new ApplicationException("Single group can only run once at a time!");
 
+			position = Console.CursorTop;
 			Draw();
 			running = true;
 			

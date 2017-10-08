@@ -21,6 +21,11 @@ namespace BankApp
 			}
 		}
 
+		public void Save()
+		{
+			Save(path: $@"Data\{DateTime.Now:yyyyMMdd-HHmm}.txt");
+		}
+
 		public void Save(string path)
 		{
 			using (var file = new FileWriter(path))
@@ -80,6 +85,13 @@ namespace BankApp
 			}
 			
 			return allMatches ?? new List<T>();
+		}
+
+		public void PrintStatistics()
+		{
+			Console.WriteLine($"Nr of customers: {Customers.Count}");
+			Console.WriteLine($"Nr of accounts: {Accounts.Count}");
+			Console.WriteLine($"Bank total balance: {Accounts.Select(a => a.Money).Sum()}");
 		}
 	}
 }

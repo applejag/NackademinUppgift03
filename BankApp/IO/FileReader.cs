@@ -1,7 +1,9 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
+using System.Linq;
+using BankApp.BankObjects;
 using BankApp.Exceptions;
 
 namespace BankApp.IO
@@ -20,7 +22,8 @@ namespace BankApp.IO
 			reader = new StreamReader(path);
 		}
 
-		public List<T> ReadSerializeableGroup<T>() where T : ISerializable, new()
+		/// <exception cref="ParseFileException">Thrown on any parsing errors</exception>
+		public List<T> ReadSerializeableGroup<T>() where T : Identified, ISerializable, new()
 		{
 			string countString = ReadLine();
 			var list = new List<T>();
@@ -36,6 +39,9 @@ namespace BankApp.IO
 					var obj = new T();
 
 					obj.Deserialize(data);
+
+					if (list.Any(o => o.ID == obj.ID))
+						throw new ParseFileException(FilePath, FileRow, $"Found second item with ID <{obj.ID}>.");
 
 					list.Add(obj);
 				}
@@ -61,6 +67,52 @@ namespace BankApp.IO
 		public void Dispose()
 		{
 			reader?.Dispose();
+		}
+
+		public static List<string> GetFilesInDirectory(string directory, string extension = ".txt")
+		{
+			var filenames = new List<string>();
+
+			void RecursiveSearch(string dirr)
+			{
+				FileSystemInfo[] files = new DirectoryInfo(Path.Combine(directory, dirr)).GetFileSystemInfos();
+
+				foreach (FileSystemInfo file in files)
+				{
+					if (file.Attributes.HasFlag(FileAttributes.Hidden)) continue;
+					
+					if (file.Attributes.HasFlag(FileAttributes.Directory))
+						RecursiveSearch(Path.Combine(dirr, file.Name));
+					else if (file.Extension == extension)
+						filenames.Add(Path.Combine(dirr, file.Name));
+				}
+			}
+
+			RecursiveSearch(string.Empty);
+
+			filenames.Sort();
+			return filenames;
+		}
+
+		public static string GetPathToLatestDateTimed(List<string> files)
+		{
+			string filename = null;
+			DateTime? latest = null;
+
+			foreach (string file in files)
+			{
+				string name = Path.GetFileNameWithoutExtension(file);
+				if (DateTime.TryParseExact(name, "yyyyMMdd-HHmm", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime time))
+				{
+					if (latest == null || time > latest.Value)
+					{
+						latest = time;
+						filename = file;
+					}
+				}
+			}
+
+			return filename;
 		}
 	}
 }

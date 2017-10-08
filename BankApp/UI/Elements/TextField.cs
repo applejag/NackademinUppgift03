@@ -4,12 +4,27 @@ namespace BankApp.UI.Elements
 {
 	public class TextField : Element
 	{
-		public string Result { get; set; } = string.Empty;
 		public int MaxLength { get; set; } = 255;
 		public int InputWidth => Width - Name.Length - 2;
 
+		public string Result {
+			get => _result;
+			set {
+				_result = value ?? "";
+				cursor = _result.Length;
+				UpdateInnerOffset();
+			}
+			
+		}
+
+		public event InputCallbackEvent Changed;
+		public event InputCallbackEvent Submit;
+
+		public delegate void InputCallbackEvent(TextField self);
+
 		private readonly Text textMask;
 
+		private string _result = string.Empty;
 		private int cursor;
 
 		public TextField(string name)
@@ -20,7 +35,6 @@ namespace BankApp.UI.Elements
 
 		protected override void OnDraw()
 		{
-
 			Write("{0}: ", Name);
 ;
 			textMask.Redraw(Console.CursorLeft, Console.CursorTop);
@@ -34,16 +48,18 @@ namespace BankApp.UI.Elements
 
 		public override void OnInput(ConsoleKeyInfo info)
 		{
+			string oldResult = Result;
+
 			switch (info.Key)
 			{
 				case ConsoleKey.Backspace when Result.Length > 0:
-					Result = Result.Substring(0, cursor - 1) + Result.Substring(cursor);
+					_result = Result.Substring(0, cursor - 1) + Result.Substring(cursor);
 					cursor--;
-					UpdateCarret();
+					UpdateInnerOffset();
 					break;
 
 				case ConsoleKey.Delete when Result.Length > 0:
-					Result = Result.Substring(0, cursor) + Result.Substring(cursor + 1);
+					_result = Result.Substring(0, cursor) + Result.Substring(cursor + 1);
 					break;
 
 				/* Cursor block movement */
@@ -57,7 +73,7 @@ namespace BankApp.UI.Elements
 						cursor--;
 					}
 
-					UpdateCarret();
+					UpdateInnerOffset();
 					break;
 
 				case ConsoleKey.RightArrow when cursor < Result.Length && info.Modifiers.HasFlag(ConsoleModifiers.Control):
@@ -70,31 +86,31 @@ namespace BankApp.UI.Elements
 						cursor++;
 					}
 
-					UpdateCarret();
+					UpdateInnerOffset();
 					break;
 
 				/* Cursor movement */
 				case ConsoleKey.LeftArrow:
 					cursor--;
-					UpdateCarret();
+					UpdateInnerOffset();
 					break;
 
 				case ConsoleKey.RightArrow when cursor < Result.Length:
 					cursor++;
-					UpdateCarret();
+					UpdateInnerOffset();
 					break;
 					
 				/* Supaa move */
 				case ConsoleKey.PageDown:
 				case ConsoleKey.End:
 					cursor = Result.Length;
-					UpdateCarret();
+					UpdateInnerOffset();
 					break;
 
 				case ConsoleKey.PageUp:
 				case ConsoleKey.Home:
 					cursor = 0;
-					UpdateCarret();
+					UpdateInnerOffset();
 					break;
 
 				/* Element navigation */
@@ -108,6 +124,7 @@ namespace BankApp.UI.Elements
 
 				case ConsoleKey.Enter:
 					Group.SelectNextOrSubmit();
+					Submit?.Invoke(this);
 					break;
 			}
 
@@ -115,14 +132,17 @@ namespace BankApp.UI.Elements
 			{
 				if (MaxLength <= 0 || Result.Length < MaxLength)
 				{
-					Result = Result.Insert(cursor, info.KeyChar.ToString());
+					_result = Result.Insert(cursor, info.KeyChar.ToString());
 					cursor++;
-					UpdateCarret();
+					UpdateInnerOffset();
 				}
 			}
+
+			if (Result != oldResult)
+				Changed?.Invoke(this);
 		}
 
-		private void UpdateCarret()
+		private void UpdateInnerOffset()
 		{
 			// Too far to the right?
 			if (cursor >= InputWidth - textMask.offset)
