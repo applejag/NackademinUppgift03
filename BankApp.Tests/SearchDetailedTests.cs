@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using BankApp.BankObjects;
 using BankApp.Tests.Mocks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -8,114 +9,208 @@ namespace BankApp.Tests
 	[TestClass]
 	public class SearchDetailedTests
 	{
-		public MockDetailed detailedWhitespace;
-		public MockDetailed detailedAlphabet;
-		public MockDetailed detailedLorem;
-
-		[TestInitialize]
-		public void Setup()
-		{
-			detailedWhitespace = new MockDetailed("   \t  \n\t  \n  ");
-			detailedAlphabet = new MockDetailed("ABCDEFGHIJKLMNOPQRSTUVWXYZÅÄÖ");
-			detailedLorem = new MockDetailed("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam sed erat elit. Phasellus tincidunt diam sed turpis condimentum. ac maximus eros malesuada.");
-		}
 
 		[TestMethod]
-		public void DetailedSearchAllForEmpty()
+		public void SearchForEmpty()
 		{
 			const string query = "";
+			ISearchable[] searchable = { new MockSearchable("hello\nworld") };
 
-			DetailedResult result1 = DetailedResult.SearchDetailed(detailedWhitespace, query);
-			DetailedResult result2 = DetailedResult.SearchDetailed(detailedAlphabet, query);
-			DetailedResult result3 = DetailedResult.SearchDetailed(detailedLorem, query);
+			List<ISearchable> result = Database.Search(searchable, query);
 
-			Assert.AreEqual(0, result1.Count);
-			Assert.IsFalse(result1.IsMatch);
-			Assert.AreEqual(0, result2.Count);
-			Assert.IsFalse(result2.IsMatch);
-			Assert.AreEqual(0, result3.Count);
-			Assert.IsFalse(result3.IsMatch);
+			Assert.IsNotNull(result);
+			Assert.AreEqual(0, result.Count);
 		}
 
 		[TestMethod]
-		public void DetailedSearchAllForSpace()
+		public void SearchForWhitespace()
 		{
-			const string query = " ";
+			const string query = "  \t  \t \n  ";
+			ISearchable[] searchable = { new MockSearchable("hello\nworld") };
 
-			DetailedResult result1 = DetailedResult.SearchDetailed(detailedWhitespace, query);
-			DetailedResult result2 = DetailedResult.SearchDetailed(detailedAlphabet, query);
-			DetailedResult result3 = DetailedResult.SearchDetailed(detailedLorem, query);
+			List<ISearchable> result = Database.Search(searchable, query);
 
-			Assert.AreEqual(0, result1.Count);
-			Assert.IsFalse(result1.IsMatch);
-			Assert.AreEqual(0, result2.Count);
-			Assert.IsFalse(result2.IsMatch);
-			Assert.AreEqual(0, result3.Count);
-			Assert.IsFalse(result3.IsMatch);
+			Assert.IsNotNull(result);
+			Assert.AreEqual(0, result.Count);
 		}
 
 		[TestMethod]
-		public void DetailedSearchAllForNull()
+		[ExpectedException(typeof(ArgumentNullException))]
+		public void SearchForNull()
 		{
 			const string query = null;
+			ISearchable[] searchable = { new MockSearchable("hello\nworld") };
 
-			try
-			{
-				DetailedResult.SearchDetailed(detailedWhitespace, query);
-				Assert.Fail("Threw on {0}", nameof(detailedWhitespace));
-			}
-			catch (ArgumentNullException)
-			{
-				try
-				{
-					DetailedResult.SearchDetailed(detailedAlphabet, query);
-					Assert.Fail("Threw on {0}", nameof(detailedAlphabet));
-				}
-				catch (ArgumentNullException)
-				{
-					try
-					{
-						DetailedResult.SearchDetailed(detailedLorem, query);
-						Assert.Fail("Threw on {0}", nameof(detailedLorem));
-					}
-					catch (ArgumentNullException)
-					{}
-				}
-			}
-			
+			Database.Search(searchable, query);
 		}
 
 		[TestMethod]
-		public void DetailedSearchEmptyForA()
+		[ExpectedException(typeof(ArgumentNullException))]
+		public void SearchWithNull()
 		{
-			const string query = "A";
+			const string query = "";
+			const ISearchable[] searchable = null;
 
-			DetailedResult result = DetailedResult.SearchDetailed(detailedWhitespace, query);
+			Database.Search(searchable, query);
+		}
 
+		[TestMethod]
+		public void SearchSimpleMatchWholeWord()
+		{
+			const string query = "world";
+			var obj = new MockSearchable("hello\nworld");
+			ISearchable[] searchables = { obj };
+
+			List<ISearchable> result = Database.Search(searchables, query);
+
+			Assert.IsNotNull(result);
+			Assert.AreEqual(1, result.Count);
+			Assert.AreSame(obj, result[0]);
+		}
+
+		[TestMethod]
+		public void SearchSimpleMatchWholeWordWithWhitespace()
+		{
+			const string query = "\t    \n wo   r\nld   \t  ";
+			var obj = new MockSearchable("hello\nworld");
+			ISearchable[] searchables = { obj };
+
+			List<ISearchable> result = Database.Search(searchables, query);
+
+			Assert.IsNotNull(result);
+			Assert.AreEqual(1, result.Count);
+			Assert.AreSame(obj, result[0]);
+		}
+
+		[TestMethod]
+		public void SearchSimpleMatchPartOfWord()
+		{
+			const string query = "rld";
+			var obj = new MockSearchable("hello\nworld");
+			ISearchable[] searchables = { obj };
+
+			List<ISearchable> result = Database.Search(searchables, query);
+
+			Assert.IsNotNull(result);
+			Assert.AreEqual(1, result.Count);
+			Assert.AreSame(obj, result[0]);
+		}
+
+		[TestMethod]
+		public void SearchSimpleMiss()
+		{
+			const string query = "wow";
+			var obj = new MockSearchable("hello\nworld");
+			ISearchable[] searchables = { obj };
+
+			List<ISearchable> result = Database.Search(searchables, query);
+
+			Assert.IsNotNull(result);
 			Assert.AreEqual(0, result.Count);
-			Assert.IsTrue(result.IsMatch);
 		}
 
 		[TestMethod]
-		public void DetailedSearchAlphabetForA()
+		public void SearchWhereMultipleWordsMatch()
 		{
-			const string query = "A";
+			const string query = "rld wo";
+			var obj = new MockSearchable("hello\nworld");
+			ISearchable[] searchables = { obj };
 
-			DetailedResult result = DetailedResult.SearchDetailed(detailedAlphabet, query);
-			
+			List<ISearchable> result = Database.Search(searchables, query);
+
+			Assert.IsNotNull(result);
+			Assert.AreEqual(1, result.Count);
+			Assert.AreSame(obj, result[0]);
+		}
+
+		[TestMethod]
+		public void SearchWhereNotAllWordsMatch()
+		{
+			const string query = "rld ce";
+			var obj = new MockSearchable("hello\nworld");
+			ISearchable[] searchables = { obj };
+
+			List<ISearchable> result = Database.Search(searchables, query);
+
+			Assert.IsNotNull(result);
+			Assert.AreEqual(0, result.Count);
+		}
+
+		[TestMethod]
+		public void SearchWhereMultipleSearchablesMatchWholeWord()
+		{
+			const string query = "hello";
+			var obj1 = new MockSearchable("hello\nvärld");
+			var obj2 = new MockSearchable("hello\nworld");
+			ISearchable[] searchables = { obj1, obj2 };
+
+			List<ISearchable> result = Database.Search(searchables, query);
+
+			Assert.IsNotNull(result);
 			Assert.AreEqual(2, result.Count);
-			Assert.IsTrue(result.IsMatch);
+			Assert.AreSame(obj1, result[0]);
+			Assert.AreSame(obj2, result[1]);
+		}
+		[TestMethod]
+		public void SearchWhereMultipleSearchablesMatchPartWord()
+		{
+			const string query = "rld";
+			var obj1 = new MockSearchable("hello\nvärld");
+			var obj2 = new MockSearchable("hello\nworld");
+			ISearchable[] searchables = { obj1, obj2 };
+
+			List<ISearchable> result = Database.Search(searchables, query);
+
+			Assert.IsNotNull(result);
+			Assert.AreEqual(2, result.Count);
+			Assert.AreSame(obj1, result[0]);
+			Assert.AreSame(obj2, result[1]);
 		}
 
 		[TestMethod]
-		public void DetailedSearchLoremForA()
+		public void SearchWhereMultipleSearchablesSingleMatch()
 		{
-			const string query = "A";
+			const string query = "world";
+			var obj1 = new MockSearchable("hello\nvärld");
+			var obj2 = new MockSearchable("hello\nworld");
+			ISearchable[] searchables = { obj1, obj2 };
 
-			DetailedResult result = DetailedResult.SearchDetailed(detailedLorem, query);
+			List<ISearchable> result = Database.Search(searchables, query);
 
-			Assert.AreEqual(22, result.Count);
-			Assert.IsTrue(result.IsMatch);
+			Assert.IsNotNull(result);
+			Assert.AreEqual(1, result.Count);
+			Assert.AreSame(obj2, result[0]);
+		}
+
+		[TestMethod]
+		public void SearchWhereMultipleWordsMatchesMultipleSearchables()
+		{
+			const string query = "rld llo";
+			var obj1 = new MockSearchable("hello\nvärld");
+			var obj2 = new MockSearchable("hello\nworld");
+			ISearchable[] searchables = { obj1, obj2 };
+
+			List<ISearchable> result = Database.Search(searchables, query);
+
+			Assert.IsNotNull(result);
+			Assert.AreEqual(2, result.Count);
+			Assert.AreSame(obj1, result[0]);
+			Assert.AreSame(obj2, result[1]);
+		}
+
+		[TestMethod]
+		public void SearchWhereNotAllWordsMatchesMultipleSearchables()
+		{
+			const string query = "rld wo";
+			var obj1 = new MockSearchable("hello\nvärld");
+			var obj2 = new MockSearchable("hello\nworld");
+			ISearchable[] searchables = { obj1, obj2 };
+
+			List<ISearchable> result = Database.Search(searchables, query);
+
+			Assert.IsNotNull(result);
+			Assert.AreEqual(1, result.Count);
+			Assert.AreSame(obj2, result[0]);
 		}
 	}
 }

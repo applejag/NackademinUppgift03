@@ -48,8 +48,7 @@
     <Compile Include="BankObjects\Account.cs" />
     <Compile Include="BankObjects\Customer.cs" />
     <Compile Include="BankObjects\Database.cs" />
-    <Compile Include="BankObjects\DetailedResult.cs" />
-    <Compile Include="BankObjects\IDetailed.cs" />
+    <Compile Include="BankObjects\ISearchable.cs" />
     <Compile Include="Exceptions\ParseFileException.cs" />
     <Compile Include="Exceptions\ParseRowException.cs" />
     <Compile Include="Exceptions\TransferException.cs" />

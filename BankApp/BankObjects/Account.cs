@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Globalization;
+using System.Linq;
 using BankApp.Exceptions;
 using BankApp.IO;
 
 namespace BankApp.BankObjects
 {
-	public sealed class Account : Identified, ISerializable
+	public sealed class Account : Identified, ISerializable, ISearchable
 	{
 		public uint CustomerID { get; private set; }
 		public decimal Money { get; private set; }
@@ -24,11 +25,14 @@ namespace BankApp.BankObjects
 		{ }
 
 
-		public FileRow Serialize() => new FileRow(
-			ID,
-			CustomerID,
-			Money
-		);
+		public FileRow Serialize()
+		{
+			return new FileRow(
+				ID,
+				CustomerID,
+				Money
+			);
+		}
 
 		public void Deserialize(FileRow data)
 		{
@@ -61,5 +65,21 @@ namespace BankApp.BankObjects
 			receiver.Money += amount;
 		}
 
+		public Customer FetchCustomer(Database db)
+		{
+			return db.Customers.SingleOrDefault(c => c.ID == CustomerID);
+		}
+		
+		public string GetSearchDisplay()
+		{
+			return $"{ID}: {Money}";
+		}
+
+		public string GetSearchQueried()
+		{
+			return string.Join("\n",
+				ID, CustomerID
+			);
+		}
 	}
 }

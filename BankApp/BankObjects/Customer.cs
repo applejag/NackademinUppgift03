@@ -1,9 +1,9 @@
-﻿using System.Globalization;
+﻿using System.Collections.Generic;
 using BankApp.IO;
 
 namespace BankApp.BankObjects
 {
-	public sealed class Customer : Identified, ISerializable
+	public sealed class Customer : Identified, ISerializable, ISearchable
 	{
 		public string OrganisationID { get; private set; }
 		public string OrganisationName { get; private set; }
@@ -25,17 +25,20 @@ namespace BankApp.BankObjects
 		public Customer(string data) : this(new FileRow(data))
 		{ }
 
-		public FileRow Serialize() => new FileRow (
-			ID,
-			OrganisationID,
-			OrganisationName,
-			Address,
-			City,
-			Region,
-			PostCode,
-			Country,
-			Telephone
-		);
+		public FileRow Serialize()
+		{
+			return new FileRow(
+				ID,
+				OrganisationID,
+				OrganisationName,
+				Address,
+				City,
+				Region,
+				PostCode,
+				Country,
+				Telephone
+			);
+		}
 
 		public void Deserialize(FileRow data)
 		{
@@ -50,6 +53,30 @@ namespace BankApp.BankObjects
 			Telephone = data.TakeString();
 
 			data.Close();
+		}
+
+		public string GetSearchDisplay()
+		{
+			return $"{ID}: {OrganisationName} ({OrganisationID})";
+		}
+
+		public string GetSearchQueried()
+		{
+			return string.Join("\n",
+				ID,
+				OrganisationID,
+				OrganisationName,
+				Address,
+				City,
+				Region,
+				PostCode,
+				Country
+			);
+		}
+
+		public List<Account> FetchAccounts(Database db)
+		{
+			return db.Accounts.FindAll(a => a.CustomerID == ID);
 		}
 	}
 }
