@@ -14,12 +14,15 @@ namespace BankApp.UI
 
 		private readonly InputGroup group;
 		private readonly Database db;
-		private readonly MenuItem[] menus = {
+
+		private readonly MenuItem[] menus =
+		{
 			new MenuItem(new MenuSearchForCustomer()),
 			new MenuItem(new MenuCreateCustomer()),
 		};
 
 		private readonly Button elementSaveAndExit;
+		private readonly Button elementExitWithoutSaving;
 
 		public MenuMain()
 		{
@@ -28,6 +31,8 @@ namespace BankApp.UI
 
 			elementSaveAndExit = new Button("Save and exit");
 			group.AddElement(elementSaveAndExit);
+			elementExitWithoutSaving = new Button("Exit without saving");
+			group.AddElement(elementExitWithoutSaving);
 		}
 
 		public void Run()
@@ -43,6 +48,15 @@ namespace BankApp.UI
 				// Save and exit
 				db.Save();
 				Running = false;
+			}
+			else if (group.Selected == elementExitWithoutSaving)
+			{
+				var btnYes = new Button("Yes, discard changes");
+				var btnNo = new Button("No, return to menu");
+				InputGroup result = InputGroup.RunGroup(btnYes, btnNo);
+
+				if (result.Selected == btnYes)
+					Running = false;
 			}
 			else
 			{

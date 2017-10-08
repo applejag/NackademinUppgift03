@@ -2,7 +2,7 @@
 {
 	public class MenuSearchForCustomer : IMenuItem
 	{
-		public string Title { get; } = "Search for customer";
+		public string Title { get; } = "Open customer page";
 
 		public void Run()
 		{
