@@ -91,7 +91,7 @@ namespace BankApp.BankObjects
 			UIUtilities.PrintSegment("Nr of customers", Customers.Count);
 			UIUtilities.PrintSegment("Nr of accounts", Accounts.Count);
 			UIUtilities.PrintSegment("Nr of transactions", Transactions.Count);
-			UIUtilities.PrintSegment("Bank total balance",Accounts.Select(a => a.Money).Sum());
+			UIUtilities.PrintSegment("Bank total balance",$"{Accounts.Select(a => a.Money).Sum():c}");
 		}
 
 		public void AddCustomer(Customer customer)

@@ -33,7 +33,7 @@ namespace BankApp.UI.Menus
 			elementsAccounts = new AccountButton[RESULTS_COUNT];
 			for (var i = 0; i < elementsAccounts.Length; i++)
 			{
-				elementsAccounts[i] = new AccountButton {Disabled = true, Padding = false};
+				elementsAccounts[i] = new AccountButton {Disabled = true, PaddingAbove = i == 0};
 				inputGroup.AddElement(elementsAccounts[i]);
 			}
 

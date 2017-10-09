@@ -26,7 +26,7 @@ namespace BankApp.UI
 			Console.BackgroundColor = ConsoleColor.DarkGreen;
 			Console.WriteLine($" {title.Trim()} ");
 
-			if (string.IsNullOrWhiteSpace(content))
+			if (!string.IsNullOrWhiteSpace(content))
 			{
 				Console.BackgroundColor = ConsoleColor.Black;
 				Console.ForegroundColor = ConsoleColor.Gray;

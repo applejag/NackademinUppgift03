@@ -18,12 +18,13 @@ namespace BankApp.UI.Menus
 
 		private readonly InputGroup inputGroup;
 
-		private readonly Button elementTransfer = new Button("Transfer money") {Padding = false};
-		private readonly Button elementInsert = new Button("Insert money") {Padding = false};
-		private readonly Button elementWithdraw = new Button("Withdraw money") {Padding = false};
+		private readonly Button elementTransfer = new Button("Transfer money") {PaddingAbove = false};
+		private readonly Button elementInsert = new Button("Insert money") {PaddingAbove = false};
+		private readonly Button elementWithdraw = new Button("Withdraw money") {PaddingAbove = false};
 
-		private readonly Button elementCloseAccount = new Button("Close account");
-		private readonly Button elementBack = new Button("Back to customer page");
+		private readonly Button elementEditAccount = new Button("Edit account") {PaddingAbove = true};
+		private readonly Button elementCloseAccount = new Button("Close account") {PaddingAbove = false};
+		private readonly Button elementBack = new Button("Back to customer page") {PaddingAbove = true};
 
 		public MenuAccountPage(Account account, Database db)
 		{
@@ -34,6 +35,7 @@ namespace BankApp.UI.Menus
 				elementTransfer,
 				elementInsert,
 				elementWithdraw,
+				elementEditAccount,
 				elementCloseAccount,
 				elementBack
 			);
@@ -71,6 +73,10 @@ namespace BankApp.UI.Menus
 			{
 				MenuMain.RunMenuItem(new MenuAccountWithdraw(account, db));
 			}
+			else if (selected == elementEditAccount)
+			{
+				MenuMain.RunMenuItem(new MenuAccountCreateEdit(db, account));
+			}
 			else if (selected == elementCloseAccount)
 			{
 				CloseAccount();
@@ -83,9 +89,12 @@ namespace BankApp.UI.Menus
 
 		private void PrintTransactions()
 		{
-			List<Transaction> transactions = account.FetchTransactions(db);
+			List<Transaction> allTransaction = account.FetchTransactions(db);
+			List<Transaction> transactions = allTransaction.Take(10).ToList();
+			int allCount = allTransaction.Count;
+			int count = transactions.Count;
 
-			if (transactions.Count == 0)
+			if (count == 0)
 			{
 				UIUtilities.PrintHeader("Transactions (0)");
 				Console.ForegroundColor = ConsoleColor.DarkYellow;
@@ -93,8 +102,10 @@ namespace BankApp.UI.Menus
 			}
 			else
 			{
-				UIUtilities.PrintHeader(
-					$"Transactions ({transactions.Count})");
+				UIUtilities.PrintHeader(allCount != count
+					? $"Transactions ({allCount}, showing {count})"
+					: $"Transactions ({count})");
+
 				foreach (Transaction transaction in transactions)
 				{
 					transaction.PrintTransaction(account);

@@ -16,14 +16,10 @@ namespace BankApp.UI.Menus
 		private readonly InputGroup inputGroup;
 
 		private AccountButton[] elementsAccounts;
-		private readonly Button elementEditCustomer = new Button("Edit customer") {Padding = false};
-		private readonly Button elementNewAccount = new Button("Open new account") { Padding = false };
-		private readonly Button elementRemoveCustomer = new Button("Remove customer") { Padding = false };
+		private readonly Button elementEditCustomer = new Button("Edit customer") {PaddingAbove = true};
+		private readonly Button elementNewAccount = new Button("Open new account") {PaddingAbove = false};
+		private readonly Button elementRemoveCustomer = new Button("Remove customer") {PaddingAbove = false};
 		private readonly Button elementBack = new Button("Back to main menu");
-
-		public MenuCustomerPage(Database db)
-			: this(MenuMain.RunMenuItem(new MenuSearchForCustomer(db)).Result, db)
-		{}
 
 		public MenuCustomerPage(Customer customer, Database db)
 		{
@@ -42,7 +38,7 @@ namespace BankApp.UI.Menus
 
 			for (int i = 0; i < accounts.Count; i++)
 			{
-				elementsAccounts[i] = new AccountButton(accounts[i]) {Padding = false};
+				elementsAccounts[i] = new AccountButton(accounts[i]) {PaddingAbove = false};
 				inputGroup.AddElement(elementsAccounts[i]);
 			}
 
@@ -81,12 +77,12 @@ namespace BankApp.UI.Menus
 			else if (selected == elementEditCustomer)
 			{
 				// Edit customer
-				MenuMain.RunMenuItem(new MenuCreateCustomer(db, customer));
+				MenuMain.RunMenuItem(new MenuCustomerCreateEdit(db, customer));
 			}
 			else if (selected == elementNewAccount)
 			{
 				// Create account
-				customer.CreateAccount(db);
+				MenuMain.RunMenuItem(new MenuAccountCreateEdit(db, customer));
 			}
 			else if (selected == elementRemoveCustomer)
 			{

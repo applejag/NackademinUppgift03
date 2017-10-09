@@ -25,9 +25,11 @@ namespace BankApp.UI
 		{
 			db = MenuLoadDatabase.AskForDatabaseFile();
 
-			mainMenus = new [] {
-				new MainMenuItem("Open customer page", () => RunMenuItem(new MenuCustomerPage(db))),
-				new MainMenuItem(new MenuCreateCustomer(db)),
+			mainMenus = new[] {
+				new MainMenuItem("Open customer page", SearchForCustomer),
+				new MainMenuItem(new MenuCustomerCreateEdit(db)),
+				new MainMenuItem("Apply daily saving rate", ApplySavingRateToAll),
+				new MainMenuItem("Apply daily credit rate", ApplyCreditRateToAll),
 			};
 
 			inputGroup = new InputGroup(mainMenus.Select(m => m.button));
@@ -76,6 +78,37 @@ namespace BankApp.UI
 				
 				return;
 			}
+		}
+
+		private void SearchForCustomer()
+		{
+			Customer customer = RunMenuItem(new MenuSearchForCustomer(db)).Result;
+			if (customer != null)
+				RunMenuItem(new MenuCustomerPage(customer, db));
+		}
+
+		private void ApplyCreditRateToAll()
+		{
+			decimal delta = 0m;
+			foreach (Account account in db.Accounts)
+			{
+				decimal old = account.Money;
+				account.ApplyCreditRate(db);
+				delta += account.Money - old;
+			}
+			UIUtilities.PromptSuccess("Added saving rates to accounts",$"Total money taken: {delta:c}");
+		}
+
+		private void ApplySavingRateToAll()
+		{
+			decimal delta = 0m;
+			foreach (Account account in db.Accounts)
+			{
+				decimal old = account.Money;
+				account.ApplySavingRate(db);
+				delta += account.Money - old;
+			}
+			UIUtilities.PromptSuccess("Added credit rates to accounts",$"Total money given: {delta:c}");
 		}
 
 		public static T RunMenuItem<T>(T item) where T : class, IMenuItem

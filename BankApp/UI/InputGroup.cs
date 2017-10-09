@@ -149,7 +149,7 @@ namespace BankApp.UI
 
 				if (previous != null)
 				{
-					if (!previous.Padding && !element.Padding)
+					if (!element.PaddingAbove)
 						y += 1;
 					else
 						y += 1 + VERT_PADDING;

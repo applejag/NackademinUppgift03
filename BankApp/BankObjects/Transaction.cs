@@ -50,6 +50,16 @@ namespace BankApp.BankObjects
 			};
 		}
 
+		public static Transaction CreateInterest(Account account, decimal change)
+		{
+			return new Transaction
+			{
+				AccountID = account.ID,
+				DeltaMoney = change,
+				Type = TransactionType.Interest,
+			};
+		}
+
 		public FileRow Serialize()
 		{
 			if (Type == TransactionType.Transfer)
@@ -122,7 +132,7 @@ namespace BankApp.BankObjects
 					Console.WriteLine($"+{DeltaMoney:c2}");
 					break;
 
-				case TransactionType.Interest:
+				case TransactionType.Interest when DeltaMoney < 0:
 					Console.ForegroundColor = ConsoleColor.Red;
 					Console.WriteLine($"{DeltaMoney:c2}");
 					break;
@@ -148,10 +158,10 @@ namespace BankApp.BankObjects
 
 		public enum TransactionType
 		{
-			Transfer,
-			Insert,
-			Withdraw,
-			Interest
+			Transfer = 0,
+			Insert = 1,
+			Withdraw = 2,
+			Interest = 3,
 		}
 	}
 }

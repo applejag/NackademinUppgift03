@@ -5,6 +5,8 @@ namespace BankApp.Tests.Mocks
 {
 	public class MockDatabase : IDatabase
 	{
+		public int TransactionsCount { get; private set; }
+
 		public void AddCustomer(Customer customer)
 		{}
 
@@ -12,6 +14,14 @@ namespace BankApp.Tests.Mocks
 		{}
 
 		public void AddTransaction(Transaction transaction)
+		{
+			TransactionsCount++;
+		}
+
+		public void RemoveCustomer(Customer customer)
+		{}
+
+		public void RemoveAccount(Account account)
 		{}
 	}
 }

@@ -26,13 +26,7 @@ namespace BankApp.IO
 
 		public FileRow(params object[] args)
 		{
-			string[] strArgs = args.Select(d =>
-			{
-				if (d is Enum e) return Convert.ToInt32(e).ToString(CultureInfo.InvariantCulture);
-				if (d is DateTimeOffset dto) return dto.ToUnixTimeSeconds().ToString(CultureInfo.InvariantCulture);
-				if (d is DateTime dt) return new DateTimeOffset(dt).ToUnixTimeSeconds().ToString(CultureInfo.InvariantCulture);
-				return Convert.ToString(d, CultureInfo.InvariantCulture).Replace(";", string.Empty);
-			}).ToArray();
+			string[] strArgs = args.Select(d => ValueConverter.ToParsableString(d).Replace(";", string.Empty)).ToArray();
 
 			dataQueue = new Queue<string>(strArgs);
 			Source = string.Join(";", strArgs);
@@ -64,17 +58,7 @@ namespace BankApp.IO
 		/// <exception cref="ParseRowException"></exception>
 		public decimal TakeDecimal()
 		{
-			if (Count == 0) throw new ParseRowException(typeof(decimal), null, Index);
-
-			string data = dataQueue.Dequeue();
-			try
-			{
-				return decimal.Parse(data.Replace(',', '.'), CultureInfo.InvariantCulture);
-			}
-			catch (Exception e)
-			{
-				throw new ParseRowException(typeof(decimal), data, Index-1, e);
-			}
+			return Take<decimal>(ValueConverter.TryParseDecimal);
 		}
 
 		/// <summary>
@@ -83,17 +67,7 @@ namespace BankApp.IO
 		/// <exception cref="ParseRowException"></exception>
 		public long TakeLong()
 		{
-			if (Count == 0) throw new ParseRowException(typeof(long), null, Index);
-
-			string data = dataQueue.Dequeue();
-			try
-			{
-				return long.Parse(data, CultureInfo.InvariantCulture);
-			}
-			catch (Exception e)
-			{
-				throw new ParseRowException(typeof(long), data, Index - 1, e);
-			}
+			return Take<long>(ValueConverter.TryParseLong);
 		}
 
 		/// <summary>
@@ -102,17 +76,7 @@ namespace BankApp.IO
 		/// <exception cref="ParseRowException"></exception>
 		public uint TakeUInt()
 		{
-			if (Count == 0) throw new ParseRowException(typeof(uint), null, Index);
-
-			string data = dataQueue.Dequeue();
-			try
-			{
-				return uint.Parse(data, CultureInfo.InvariantCulture);
-			}
-			catch (Exception e)
-			{
-				throw new ParseRowException(typeof(uint), data, Index - 1, e);
-			}
+			return Take<uint>(ValueConverter.TryParseUInt);
 		}
 
 		/// <summary>
@@ -121,66 +85,38 @@ namespace BankApp.IO
 		/// <exception cref="ParseRowException"></exception>
 		public int TakeInt()
 		{
-			if (Count == 0) throw new ParseRowException(typeof(int), null, Index);
-
-			string data = dataQueue.Dequeue();
-			try
-			{
-				return int.Parse(data, CultureInfo.InvariantCulture);
-			}
-			catch (Exception e)
-			{
-				throw new ParseRowException(typeof(int), data, Index - 1, e);
-			}
+			return Take<int>(ValueConverter.TryParseInt);
 		}
 
-		public T TakeEnum<T>()
+		/// <summary>
+		/// Takes one string from the row array queue and tries to convert it to an enum of type <typeparamref name="T"/>.
+		/// </summary>
+		/// <exception cref="ParseRowException"></exception>
+		public T TakeEnum<T>() where T : struct, IComparable
 		{
-			if (Count == 0) throw new ParseRowException(typeof(T), null, Index);
-
-			string data = dataQueue.Dequeue();
-			try
-			{
-				int id = int.Parse(data, CultureInfo.InvariantCulture);
-				
-				return (T)Enum.ToObject(typeof(T), id);
-			}
-			catch (Exception e)
-			{
-				throw new ParseRowException(typeof(T), data, Index - 1, e);
-			}
+			return Take<T>(ValueConverter.TryParseEnum);
 		}
 
 		public DateTime TakeDateTime()
 		{
-			if (Count == 0) throw new ParseRowException(typeof(DateTime), null, Index);
-
-			string data = dataQueue.Dequeue();
-			try
-			{
-				long time = long.Parse(data, CultureInfo.InvariantCulture);
-				return DateTimeOffset.FromUnixTimeSeconds(time).DateTime;
-			}
-			catch (Exception e)
-			{
-				throw new ParseRowException(typeof(DateTime), data, Index - 1, e);
-			}
+			return Take<DateTime>(ValueConverter.TryParseDateTime);
 		}
 
 		public DateTimeOffset TakeDateTimeOffset()
 		{
-			if (Count == 0) throw new ParseRowException(typeof(DateTimeOffset), null, Index);
+			return Take<DateTimeOffset>(ValueConverter.TryParseDateTimeOffset);
+		}
+
+		public T Take<T>(ValueConverter.Parser<T> parser)
+		{
+			if (Count == 0) throw new ParseRowException(typeof(T), null, Index);
 
 			string data = dataQueue.Dequeue();
-			try
-			{
-				long time = long.Parse(data, CultureInfo.InvariantCulture);
-				return DateTimeOffset.FromUnixTimeSeconds(time);
-			}
-			catch (Exception e)
-			{
-				throw new ParseRowException(typeof(DateTimeOffset), data, Index - 1, e);
-			}
+
+			if (parser(data, out T result))
+				return result;
+
+			throw new ParseRowException(typeof(T), null, Index - 1);
 		}
 
 		public void Close()

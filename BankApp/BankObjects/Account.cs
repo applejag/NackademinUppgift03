@@ -12,6 +12,9 @@ namespace BankApp.BankObjects
 	{
 		public uint CustomerID { get; private set; }
 		public decimal Money { get; private set; }
+		public decimal SavingRate { get; set; }
+		public decimal CreditRate { get; set; }
+		public decimal CreditLimit { get; set; }
 
 		#region Serialization
 
@@ -37,7 +40,10 @@ namespace BankApp.BankObjects
 			return new FileRow(
 				ID,
 				CustomerID,
-				Money
+				Money,
+				SavingRate,
+				CreditRate,
+				CreditLimit
 			);
 		}
 
@@ -46,6 +52,14 @@ namespace BankApp.BankObjects
 			ID = data.TakeUInt();
 			CustomerID = data.TakeUInt();
 			Money = data.TakeDecimal();
+			
+			// New format
+			if (data.SourceCount > 3)
+			{
+				SavingRate = Math.Max(data.TakeDecimal(), 0);
+				CreditRate = Math.Max(data.TakeDecimal(), 0);
+				CreditLimit = Math.Max(data.TakeDecimal(), 0);
+			}
 
 			data.Close();
 		}
@@ -67,7 +81,7 @@ namespace BankApp.BankObjects
 			if (receiver == this) throw new AccountTransferInvalidReceiverException(this, receiver, amount);
 
 			if (amount <= 0) throw new AccountTransferInvalidAmountException(this, receiver, amount);
-			if (amount > Money) throw new AccountTransferInsufficientFundsException(this, receiver, amount);
+			if (amount - CreditLimit > Money) throw new AccountTransferInsufficientFundsException(this, receiver, amount);
 
 			Money -= amount;
 			receiver.Money += amount;
@@ -98,10 +112,41 @@ namespace BankApp.BankObjects
 		public void WithdrawMoney(decimal amount, IDatabase db)
 		{
 			if (amount <= 0) throw new AccountWithdrawInvalidAmountException(this, amount);
-			if (amount > Money) throw new AccountWithdrawInsufficientFundsException(this, amount);
+			if (amount - CreditLimit > Money) throw new AccountWithdrawInsufficientFundsException(this, amount);
 
 			Money -= amount;
 			db.AddTransaction(Transaction.CreateWithdraw(this, amount));
+		}
+
+		public void ApplyCreditRate(IDatabase db)
+		{
+			if (CreditRate <= 0) return;
+			if (Money >= 0) return;
+
+			decimal change = Money * CreditRate / DaysThisYear();
+			Money += change;
+			db.AddTransaction(Transaction.CreateInterest(this, change));
+		}
+
+		public void ApplySavingRate(IDatabase db)
+		{
+			if (SavingRate <= 0) return;
+			if (Money <= 0) return;
+
+			decimal change = Money * SavingRate / DaysThisYear();
+			Money += change;
+			db.AddTransaction(Transaction.CreateInterest(this, change));
+		}
+
+		public static int DaysThisYear()
+		{
+			int days = 0;
+			int year = DateTime.Now.Year;
+
+			for (int month = 1; month <= 12; month++)
+				days += DateTime.DaysInMonth(year, month);
+
+			return days;
 		}
 
 		public Customer FetchCustomer(Database db)
@@ -137,6 +182,13 @@ namespace BankApp.BankObjects
 
 			UIUtilities.PrintSegment("Account nr", ID);
 			UIUtilities.PrintSegment("Balance", $"{Money:C}");
+
+			if (SavingRate > 0)
+				UIUtilities.PrintSegment("Saving yearly rate", $"{SavingRate:P}");
+			if (CreditRate > 0)
+				UIUtilities.PrintSegment("Credit yearly rate", $"{CreditRate:P}");
+			if (CreditLimit > 0)
+				UIUtilities.PrintSegment("Credit limit", $"{CreditLimit:d}");
 
 			Customer customer = FetchCustomer(db);
 			UIUtilities.PrintSegment("Customer", customer?.GetSearchDisplay() ?? "N/A");

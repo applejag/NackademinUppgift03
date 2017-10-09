@@ -45,6 +45,25 @@ namespace BankApp.Tests
 		}
 
 		[TestMethod]
+		[ExpectedException(typeof(AccountWithdrawInsufficientFundsException))]
+		public void AccountWithdrawPositiveOnLowCredit()
+		{
+			var account = new Account { CreditLimit = 50 };
+
+			account.WithdrawMoney(100m, db);
+		}
+
+		[TestMethod]
+		public void AccountWithdrawPositiveOnHighCredit()
+		{
+			var account = new Account { CreditLimit = 5000 };
+
+			account.WithdrawMoney(100m, db);
+
+			Assert.AreEqual(-100m, account.Money);
+		}
+
+		[TestMethod]
 		public void AccountWithdrawPositiveOnExisting()
 		{
 			var account = new Account("13093;1024;695.62");

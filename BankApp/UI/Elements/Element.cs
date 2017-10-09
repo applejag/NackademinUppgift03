@@ -15,7 +15,7 @@ namespace BankApp.UI.Elements
 		public InputGroup Group { get; internal set; }
 		public bool Selected => Group?.Selected == this;
 		public bool Disabled { get; set; } = false;
-		public bool Padding { get; set; } = true;
+		public bool PaddingAbove { get; set; } = true;
 
 		public abstract void OnInput(ConsoleKeyInfo info);
 

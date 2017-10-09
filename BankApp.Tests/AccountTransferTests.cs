@@ -39,6 +39,18 @@ namespace BankApp.Tests
 		}
 
 		[TestMethod]
+		public void AccountTransferWithCredit()
+		{
+			var accA = new Account("13093;1024;695.62") {CreditLimit = 10_000m};
+			var accB = new Account("13128;1032;392.20");
+
+			accA.TransferMoney(1_000m, accB, db);
+
+			Assert.AreEqual(-304.38m, accA.Money);
+			Assert.AreEqual(1392.2m, accB.Money);
+		}
+
+		[TestMethod]
 		[ExpectedException(typeof(AccountTransferInvalidAmountException))]
 		public void AccountTransferNegativeAmount()
 		{

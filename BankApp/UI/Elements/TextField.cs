@@ -7,6 +7,7 @@ namespace BankApp.UI.Elements
 		public int MaxLength { get; set; } = 255;
 		public int InputWidth => AvailableWidth - Name.Length - 2;
 		public Predicate<char> Validator { get; set; } = ValidatorNonControl;
+		public string Suffix { get; set; } = null;
 
 		public static bool ValidatorNonControl(char c)
 		{
@@ -173,7 +174,12 @@ namespace BankApp.UI.Elements
 			protected override void OnDraw()
 			{
 				Console.ForegroundColor = parent.Selected ? ConsoleColor.White : ConsoleColor.Gray;
-				Write(parent.Result.Substring(Math.Min(Math.Max(-offset, 0), parent.Result.Length)) + new string(' ', AvailableWidth));
+				Write(parent.Result.Substring(Math.Min(Math.Max(-offset, 0), parent.Result.Length)));
+
+				Console.ForegroundColor = ConsoleColor.DarkYellow;
+				Write(parent.Suffix);
+
+				Write(new string(' ', AvailableWidth));
 				
 				if (parent.Selected)
 				{
