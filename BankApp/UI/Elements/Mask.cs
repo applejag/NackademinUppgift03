@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Security.Cryptography.X509Certificates;
 using JetBrains.Annotations;
 
 namespace BankApp.UI.Elements
@@ -8,18 +6,13 @@ namespace BankApp.UI.Elements
 	public abstract class Mask
 	{
 		protected abstract void OnDraw();
-
-		/// <summary>
-		/// Default: Remaining width of screen
-		/// </summary>
-		public virtual int Width => AvailableWidth;
-
+		
 		public int AvailableWidth => Console.WindowWidth - InputGroup.HORI_PADDING - PositionX;
-		public int RemainingWidth => Width - Console.CursorLeft + PositionX;
+		public int RemainingWidth => AvailableWidth - Console.CursorLeft + PositionX;
 
 		public bool IsCursorInside =>
 			Console.CursorLeft >= PositionX
-			&& Console.CursorLeft < PositionX + Width
+			&& Console.CursorLeft < PositionX + AvailableWidth
 			&& Console.CursorTop == PositionY;
 
 		public int PositionX { get; private set; }
@@ -27,6 +20,10 @@ namespace BankApp.UI.Elements
 
 		public void Redraw(int x, int y)
 		{
+			Console.BackgroundColor = ConsoleColor.Black;
+			Console.SetCursorPosition(x, y);
+			Console.Write(new string(' ', Console.WindowWidth - Console.CursorLeft));
+
 			Console.ResetColor();
 			Console.SetCursorPosition(x, y);
 			PositionX = x;
@@ -39,7 +36,7 @@ namespace BankApp.UI.Elements
 			int x = Console.CursorLeft;
 			int y = Console.CursorTop;
 			Console.SetCursorPosition(PositionX, PositionY);
-			Console.Write(new string(' ', Width));
+			Console.Write(new string(' ', AvailableWidth));
 			Console.SetCursorPosition(x, y);
 		}
 

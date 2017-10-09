@@ -73,6 +73,7 @@
     <Compile Include="UI\Menus\MenuCreateCustomer.cs" />
     <Compile Include="UI\Menus\MenuCustomerPage.cs" />
     <Compile Include="UI\Menus\MenuLoadDatabase.cs" />
+    <Compile Include="UI\Menus\MenuAccountPage.cs" />
     <Compile Include="UI\Menus\MenuSearchForCustomer.cs" />
   </ItemGroup>
   <ItemGroup>

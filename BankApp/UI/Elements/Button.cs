@@ -4,8 +4,6 @@ namespace BankApp.UI.Elements
 {
 	public class Button : Element
 	{
-		//public override int Width => Name.Length + 4;
-
 		public Button(string name)
 			: base(name)
 		{ }

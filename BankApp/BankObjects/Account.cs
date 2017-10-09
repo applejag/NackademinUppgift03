@@ -81,5 +81,10 @@ namespace BankApp.BankObjects
 				ID, CustomerID
 			);
 		}
+
+		public void PrintProfile(Database db)
+		{
+			
+		}
 	}
 }

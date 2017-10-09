@@ -5,7 +5,7 @@ namespace BankApp.UI.Elements
 	public class TextField : Element
 	{
 		public int MaxLength { get; set; } = 255;
-		public int InputWidth => Width - Name.Length - 2;
+		public int InputWidth => AvailableWidth - Name.Length - 2;
 
 		public string Result {
 			get => _result;
@@ -20,7 +20,7 @@ namespace BankApp.UI.Elements
 		public event InputCallbackEvent Changed;
 		public event InputCallbackEvent Submit;
 
-		public delegate void InputCallbackEvent(TextField self);
+		public delegate void InputCallbackEvent(TextField field);
 
 		private readonly Text textMask;
 
@@ -38,12 +38,6 @@ namespace BankApp.UI.Elements
 			Write("{0}: ", Name);
 ;
 			textMask.Redraw(Console.CursorLeft, Console.CursorTop);
-
-			if (Selected)
-			{
-				Console.CursorLeft = Math.Min(textMask.PositionX + textMask.offset + cursor, Console.WindowWidth - 1);
-				Console.CursorVisible = IsCursorInside;
-			}
 		}
 
 		public override void OnInput(ConsoleKeyInfo info)
@@ -155,7 +149,6 @@ namespace BankApp.UI.Elements
 
 		private class Text : Mask
 		{
-			public override int Width => parent.InputWidth;
 			private readonly TextField parent;
 			public int offset = 0;
 
@@ -167,7 +160,13 @@ namespace BankApp.UI.Elements
 			protected override void OnDraw()
 			{
 				Console.ForegroundColor = parent.Selected ? ConsoleColor.White : ConsoleColor.Gray;
-				Write(parent.Result.Substring(Math.Min(Math.Max(-offset, 0), parent.Result.Length)) + new string(' ', Width));
+				Write(parent.Result.Substring(Math.Min(Math.Max(-offset, 0), parent.Result.Length)) + new string(' ', AvailableWidth));
+				
+				if (parent.Selected)
+				{
+					Console.CursorLeft = Math.Min(PositionX + offset + parent.cursor, Console.WindowWidth - 1);
+					Console.CursorVisible = IsCursorInside;
+				}
 			}
 		}
 	}

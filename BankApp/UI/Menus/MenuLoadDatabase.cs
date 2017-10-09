@@ -12,9 +12,11 @@ namespace BankApp.UI.Menus
 	public class MenuLoadDatabase : IMenuItem
 	{
 		public string Title { get; } = "Choose file";
+		public bool Done => DB != null;
+		public Database DB { get; private set; }
 
 		public string Path => elementInput.Result;
-		public string ErrorMessage { get; set; }
+		public string ErrorMessage { get; set; } = null;
 		
 		private readonly InputGroup menuGroup;
 		private readonly TextField elementInput;
@@ -42,6 +44,8 @@ namespace BankApp.UI.Menus
 			elementInput.Result = FileReader.GetPathToLatestDateTimed(files);
 
 			menuGroup.Run();
+
+			TryGetDatabase();
 		}
 
 		private static List<string> PrintFilesInCurrentDirectory()
@@ -78,31 +82,32 @@ namespace BankApp.UI.Menus
 		public static Database AskForDatabaseFile()
 		{
 			var loadfile = new MenuLoadDatabase();
+			
+			MenuMain.RunMenuItem(loadfile);
 
-			while (true)
+			return loadfile.DB;
+		}
+
+		private void TryGetDatabase()
+		{
+
+			if (!HasValidPath())
 			{
-				MenuMain.RunMenuItem(loadfile);
-
-				if (!loadfile.HasValidPath())
-				{
-					loadfile.ErrorMessage = "Please enter a path to an existing file!";
-					continue;
-				}
-
-				try
-				{
-					return new Database(loadfile.Path);
-				}
-				catch (ParseFileException e)
-				{
-					loadfile.ErrorMessage = e.Message;
-				}
-				catch (Exception e)
-				{
-					loadfile.ErrorMessage = $"Unexpected exception: {e.GetType().Name}\n{e.Message}";
-				}
+				ErrorMessage = "Please enter a path to an existing file!";
 			}
 
+			try
+			{
+				DB = new Database(Path);
+			}
+			catch (ParseFileException e)
+			{
+				ErrorMessage = e.Message;
+			}
+			catch (Exception e)
+			{
+				ErrorMessage = $"Unexpected exception: {e.GetType().Name}\n{e.Message}";
+			}
 		}
 	}
 }

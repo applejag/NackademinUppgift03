@@ -7,13 +7,7 @@ namespace BankApp
 	{
 		static void Main(string[] args)
 		{
-			var controller = new MenuMain();
-
-			while (controller.Running)
-			{
-				MenuMain.RunMenuItem(controller);
-			}
-
+			MenuMain.RunMenuItem(new MenuMain());
 		}
 	}
 }

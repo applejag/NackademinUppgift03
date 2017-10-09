@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using BankApp.UI.Elements;
 
 namespace BankApp.UI
@@ -11,13 +10,18 @@ namespace BankApp.UI
 		public const int HORI_PADDING = 2;
 
 		private readonly List<Element> elements = new List<Element>();
-		private int selectedIndex = 0;
+		private int selectedIndex;
 		private int position;
 		private bool running;
 
-		public Element Selected => (selectedIndex >= 0 && selectedIndex < elements.Count)
-			? elements[selectedIndex]
-			: null;
+		public Element Selected
+		{
+			get => (selectedIndex >= 0 && selectedIndex < elements.Count)
+				? elements[selectedIndex]
+				: null;
+
+			set => selectedIndex = value == null || value.Disabled ? -1 : elements.IndexOf(value);
+		}
 
 		public InputGroup()
 		{ }
@@ -61,6 +65,21 @@ namespace BankApp.UI
 			return true;
 		}
 
+		public int RemoveAll(Predicate<Element> match)
+		{
+			if (match == null)
+				throw new ArgumentNullException(nameof(match));
+
+			return elements.RemoveAll(match);
+		}
+
+		public int RemoveAll()
+		{
+			int count = elements.Count;
+			elements.Clear();
+			return count;
+		}
+
 		public static InputGroup RunGroup(IEnumerable<Element> elements)
 		{
 			var group = new InputGroup(elements);
@@ -84,6 +103,7 @@ namespace BankApp.UI
 			if (running)
 				throw new ApplicationException("Single group can only run once at a time!");
 
+			if (Selected == null && elements.Count > 0) selectedIndex = 0;
 			position = Console.CursorTop;
 			Draw();
 			running = true;
@@ -114,6 +134,8 @@ namespace BankApp.UI
 
 			foreach (Element element in elements)
 			{
+				if (element.Disabled) continue;
+
 				if (element != selected)
 					element.Redraw(x, y);
 				else
@@ -121,14 +143,19 @@ namespace BankApp.UI
 					selectedX = x;
 					selectedY = y;
 				}
+				
+				y += 1 + VERT_PADDING;
+			}
 
-				x += element.Width + HORI_PADDING;
+			foreach (Element element in elements)
+			{
+				if (!element.Disabled) continue;
 
-				if (x >= Console.WindowWidth)
-				{
-					y += 1 + VERT_PADDING;
-					x = HORI_PADDING;
-				}
+				Console.SetCursorPosition(x,y);
+				Console.BackgroundColor = ConsoleColor.Black;
+				Console.Write(new string(' ', element.AvailableWidth));
+
+				y += 1 + VERT_PADDING;
 			}
 
 			// Draw selected last
@@ -159,18 +186,36 @@ namespace BankApp.UI
 
 		public void SelectNext()
 		{
-			if (selectedIndex < 0)
-				selectedIndex = 0;
-			else
-				selectedIndex = (selectedIndex + 1) % elements.Count;
+			foreach (Element _ in elements)
+			{
+				if (selectedIndex < 0)
+					selectedIndex = 0;
+				else
+					selectedIndex = (selectedIndex + 1) % elements.Count;
+
+				if (Selected != null && !Selected.Disabled)
+					break;
+			}
+
+			if (Selected == null || Selected.Disabled)
+				selectedIndex = -1;
 		}
 
 		public void SelectPrevious()
 		{
-			if (selectedIndex < 0)
-				selectedIndex = elements.Count - 1;
-			else
-				selectedIndex = (selectedIndex + elements.Count - 1) % elements.Count;
+			foreach (Element _ in elements)
+			{
+				if (selectedIndex < 0)
+					selectedIndex = elements.Count - 1;
+				else
+					selectedIndex = (selectedIndex + elements.Count - 1) % elements.Count;
+
+				if (Selected != null && !Selected.Disabled)
+					break;
+			}
+
+			if (Selected == null || Selected.Disabled)
+				selectedIndex = -1;
 		}
 
 		public void SelectNextOrSubmit()

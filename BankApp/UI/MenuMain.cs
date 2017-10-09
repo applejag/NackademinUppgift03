@@ -10,16 +10,13 @@ namespace BankApp.UI
 	public class MenuMain : IMenuItem
 	{
 		public string Title { get; } = "Main menu";
+		public bool Done { get; } = false;
 		public bool Running { get; private set; } = true;
 
 		private readonly InputGroup group;
 		private readonly Database db;
 
-		private readonly MenuItem[] menus =
-		{
-			new MenuItem(new MenuSearchForCustomer()),
-			new MenuItem(new MenuCreateCustomer()),
-		};
+		private readonly MainMenuItem[] mainMenus;
 
 		private readonly Button elementSaveAndExit;
 		private readonly Button elementExitWithoutSaving;
@@ -27,7 +24,13 @@ namespace BankApp.UI
 		public MenuMain()
 		{
 			db = MenuLoadDatabase.AskForDatabaseFile();
-			group = new InputGroup(menus.Select(m => m.button));
+
+			mainMenus = new [] {
+				new MainMenuItem(new MenuSearchForCustomer(db)),
+				new MainMenuItem(new MenuCreateCustomer()),
+			};
+
+			group = new InputGroup(mainMenus.Select(m => m.button));
 
 			elementSaveAndExit = new Button("Save and exit");
 			group.AddElement(elementSaveAndExit);
@@ -66,7 +69,7 @@ namespace BankApp.UI
 
 		private void RunSubMenu(Button menuButton)
 		{
-			foreach (MenuItem menu in menus)
+			foreach (MainMenuItem menu in mainMenus)
 			{
 				if (menu.button != menuButton) continue;
 				
@@ -80,15 +83,21 @@ namespace BankApp.UI
 		{
 			if (item == null) return;
 
-			Console.Clear();
-			Console.WriteLine();
-			Console.BackgroundColor = ConsoleColor.DarkGreen;
-			Console.ForegroundColor = ConsoleColor.White;
-			Console.Write($" << {ToSuperUpper(item.Title)} >> ");
-			Console.ResetColor();
-			Console.WriteLine();
-			Console.WriteLine();
-			item.Run();
+			do
+			{
+				Console.Clear();
+				Console.WriteLine();
+				Console.BackgroundColor = ConsoleColor.DarkGreen;
+				Console.ForegroundColor = ConsoleColor.White;
+				Console.Write($" << {ToSuperUpper(item.Title)} >> ");
+				Console.ResetColor();
+				Console.WriteLine();
+				Console.WriteLine();
+
+				Console.Title = $"Bank app > {item.Title}";
+
+				item.Run();
+			} while (!item.Done);
 		}
 
 		private static string ToSuperUpper(string text)
@@ -101,12 +110,12 @@ namespace BankApp.UI
 			return sb.ToString();
 		}
 
-		private struct MenuItem
+		private struct MainMenuItem
 		{
 			public readonly IMenuItem item;
 			public readonly Button button;
 
-			public MenuItem(IMenuItem item)
+			public MainMenuItem(IMenuItem item)
 			{
 				button = new Button(item.Title);
 				this.item = item;

@@ -3,6 +3,7 @@
 	public class MenuCreateCustomer : IMenuItem
 	{
 		public string Title { get; } = "Create customer";
+		public bool Done { get; } = true;
 
 		public void Run()
 		{
