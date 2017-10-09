@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using BankApp.Exceptions;
 using BankApp.IO;
 using BankApp.UI.Elements;
@@ -15,7 +16,7 @@ namespace BankApp.UI.Menus
 		public bool Done => DB != null;
 		public Database DB { get; private set; }
 
-		public string Path => elementInput.Result;
+		public string Path => EscapePath(elementInput.TrimmedResult);
 		public string ErrorMessage { get; set; } = null;
 		
 		private readonly InputGroup menuGroup;
@@ -28,6 +29,20 @@ namespace BankApp.UI.Menus
 			menuGroup = new InputGroup(
 				elementInput
 			);
+		}
+
+		private static string EscapePath(string path)
+		{
+			var sb = new StringBuilder(path.Length);
+			char[] invalidChars = System.IO.Path.GetInvalidPathChars();
+
+			foreach (char c in path)
+			{
+				if (Array.IndexOf(invalidChars, c) == -1)
+					sb.Append(c);
+			}
+
+			return sb.ToString();
 		}
 
 		public void Run()

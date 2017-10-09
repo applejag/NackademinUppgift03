@@ -129,12 +129,28 @@ namespace BankApp.UI
 			int selectedY = -1;
 
 			Element selected = Selected; // in case it's changed during draw call
+			Element previous = null;
 
 			Console.CursorVisible = false;
+
+			Console.BackgroundColor = ConsoleColor.Black;
+			for (int i = elements.Count * 2 - 1; i >= 0; i--)
+			{
+				Console.SetCursorPosition(0, y+i);
+				Console.Write(new string(' ', Console.WindowWidth));
+			}
 
 			foreach (Element element in elements)
 			{
 				if (element.Disabled) continue;
+
+				if (previous != null)
+				{
+					if (!previous.Padding && !element.Padding)
+						y += 1;
+					else
+						y += 1 + VERT_PADDING;
+				}
 
 				if (element != selected)
 					element.Redraw(x, y);
@@ -143,19 +159,8 @@ namespace BankApp.UI
 					selectedX = x;
 					selectedY = y;
 				}
-				
-				y += 1 + VERT_PADDING;
-			}
 
-			foreach (Element element in elements)
-			{
-				if (!element.Disabled) continue;
-
-				Console.SetCursorPosition(x,y);
-				Console.BackgroundColor = ConsoleColor.Black;
-				Console.Write(new string(' ', element.AvailableWidth));
-
-				y += 1 + VERT_PADDING;
+				previous = element;
 			}
 
 			// Draw selected last

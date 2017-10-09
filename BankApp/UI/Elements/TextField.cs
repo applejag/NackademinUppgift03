@@ -7,6 +7,7 @@ namespace BankApp.UI.Elements
 		public int MaxLength { get; set; } = 255;
 		public int InputWidth => AvailableWidth - Name.Length - 2;
 
+		public string TrimmedResult => Result.Trim();
 		public string Result {
 			get => _result;
 			set {
@@ -14,8 +15,8 @@ namespace BankApp.UI.Elements
 				cursor = _result.Length;
 				UpdateInnerOffset();
 			}
-			
 		}
+
 
 		public event InputCallbackEvent Changed;
 		public event InputCallbackEvent Submit;
@@ -35,6 +36,7 @@ namespace BankApp.UI.Elements
 
 		protected override void OnDraw()
 		{
+			Console.ForegroundColor = ConsoleColor.DarkYellow;
 			Write("{0}: ", Name);
 ;
 			textMask.Redraw(Console.CursorLeft, Console.CursorTop);

@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using BankApp.Exceptions;
 using BankApp.IO;
+using BankApp.UI;
 
 namespace BankApp.BankObjects
 {
@@ -15,6 +17,11 @@ namespace BankApp.BankObjects
 
 		public Account()
 		{ }
+
+		public Account(Customer parent)
+		{
+			CustomerID = parent.ID;
+		}
 
 		public Account(FileRow data) : this()
 		{
@@ -84,7 +91,20 @@ namespace BankApp.BankObjects
 
 		public void PrintProfile(Database db)
 		{
+			UIUtilities.PrintHeader("Information");
+
+			UIUtilities.PrintSegment("Account nr", ID);
+			UIUtilities.PrintSegment("Balance", $"{Money:C}");
 			
+			// Accounts
+			if (db != null)
+			{
+				Console.WriteLine();
+				Customer customer = FetchCustomer(db);
+
+				UIUtilities.PrintHeader("Owning customer");
+				UIUtilities.PrintSegment("Customer nr", customer.GetSearchDisplay());
+			}
 		}
 	}
 }

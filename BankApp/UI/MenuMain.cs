@@ -10,60 +10,58 @@ namespace BankApp.UI
 	public class MenuMain : IMenuItem
 	{
 		public string Title { get; } = "Main menu";
-		public bool Done { get; } = false;
-		public bool Running { get; private set; } = true;
+		public bool Done { get; private set; } = false;
 
-		private readonly InputGroup group;
+		private readonly InputGroup inputGroup;
 		private readonly Database db;
 
 		private readonly MainMenuItem[] mainMenus;
 
-		private readonly Button elementSaveAndExit;
-		private readonly Button elementExitWithoutSaving;
+		private readonly Button elementSaveAndExit = new Button("Save and exit");
+		private readonly Button elementExitWithoutSaving = new Button("Exit without saving");
 
 		public MenuMain()
 		{
 			db = MenuLoadDatabase.AskForDatabaseFile();
 
 			mainMenus = new [] {
-				new MainMenuItem(new MenuSearchForCustomer(db)),
-				new MainMenuItem(new MenuCreateCustomer()),
+				new MainMenuItem("Open customer page", () => RunMenuItem(new MenuCustomerPage(db))),
+				new MainMenuItem(new MenuCreateCustomer(db)),
 			};
 
-			group = new InputGroup(mainMenus.Select(m => m.button));
+			inputGroup = new InputGroup(mainMenus.Select(m => m.button));
 
-			elementSaveAndExit = new Button("Save and exit");
-			group.AddElement(elementSaveAndExit);
-			elementExitWithoutSaving = new Button("Exit without saving");
-			group.AddElement(elementExitWithoutSaving);
+			inputGroup.AddElement(elementSaveAndExit);
+			inputGroup.AddElement(elementExitWithoutSaving);
 		}
 
 		public void Run()
 		{
+			Done = false;
 			db.PrintStatistics();
 
 			Console.WriteLine();
 
-			group.Run();
+			inputGroup.Run();
 
-			if (group.Selected == elementSaveAndExit)
+			if (inputGroup.Selected == elementSaveAndExit)
 			{
 				// Save and exit
 				db.Save();
-				Running = false;
+				Done = true;
 			}
-			else if (group.Selected == elementExitWithoutSaving)
+			else if (inputGroup.Selected == elementExitWithoutSaving)
 			{
-				var btnYes = new Button("Yes, discard changes");
-				var btnNo = new Button("No, return to menu");
-				InputGroup result = InputGroup.RunGroup(btnYes, btnNo);
+				const string title = "Unsaved changes will be lost, are you sure?";
+				const string yes = "Yes, discard changes";
+				const string no = "No, back to main menu";
 
-				if (result.Selected == btnYes)
-					Running = false;
+				if (UIUtilities.PromptActions(title, yes, no) == yes)
+					Done = true;
 			}
 			else
 			{
-				RunSubMenu(group.Selected as Button);
+				RunSubMenu(inputGroup.Selected as Button);
 			}
 		}
 
@@ -72,16 +70,16 @@ namespace BankApp.UI
 			foreach (MainMenuItem menu in mainMenus)
 			{
 				if (menu.button != menuButton) continue;
-				
-				RunMenuItem(menu.item);	
+
+				menu.onSubmit?.Invoke();
 				
 				return;
 			}
 		}
 
-		public static void RunMenuItem(IMenuItem item)
+		public static T RunMenuItem<T>(T item) where T : class, IMenuItem
 		{
-			if (item == null) return;
+			if (item == null) return null;
 
 			do
 			{
@@ -98,6 +96,8 @@ namespace BankApp.UI
 
 				item.Run();
 			} while (!item.Done);
+
+			return item;
 		}
 
 		private static string ToSuperUpper(string text)
@@ -112,14 +112,19 @@ namespace BankApp.UI
 
 		private struct MainMenuItem
 		{
-			public readonly IMenuItem item;
+			public readonly Action onSubmit;
 			public readonly Button button;
 
 			public MainMenuItem(IMenuItem item)
+				: this(item.Title, () => RunMenuItem(item))
+			{}
+
+			public MainMenuItem(string title, Action onSubmit)
 			{
-				button = new Button(item.Title);
-				this.item = item;
+				button = new Button(title);
+				this.onSubmit = onSubmit;
 			}
+
 		}
 	}
 }

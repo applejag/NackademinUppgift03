@@ -4,22 +4,23 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using BankApp.IO;
+using BankApp.UI;
 
 namespace BankApp.BankObjects
 {
 	public sealed class Customer : Identified, ISerializable, ISearchable
 	{
-		public string OrganisationID { get; private set; }
-		public string OrganisationName { get; private set; }
-		public string Address { get; private set; }
-		public string City { get; private set; }
-		public string Region { get; private set; }
-		public string PostCode { get; private set; }
-		public string Country { get; private set; }
-		public string Telephone { get; private set; }
+		public string OrganisationID { get; set; }
+		public string OrganisationName { get; set; }
+		public string Address { get; set; }
+		public string City { get; set; }
+		public string Region { get; set; }
+		public string PostCode { get; set; }
+		public string Country { get; set; }
+		public string Telephone { get; set; }
 
 		public Customer()
-		{ }
+		{}
 
 		public Customer(FileRow data) : this()
 		{
@@ -83,14 +84,6 @@ namespace BankApp.BankObjects
 			return db.Accounts.FindAll(a => a.CustomerID == ID);
 		}
 
-		private static void PrintSegment(object title, object content)
-		{
-			Console.ForegroundColor = ConsoleColor.DarkYellow;
-			Console.Write($"{Convert.ToString(title, CultureInfo.InvariantCulture)}: ");
-			Console.ForegroundColor = ConsoleColor.White;
-			Console.WriteLine($"{Convert.ToString(content, CultureInfo.InvariantCulture)}");
-		}
-
 		private string GetAddress()
 		{
 			var sb = new StringBuilder();
@@ -107,16 +100,15 @@ namespace BankApp.BankObjects
 
 		public void PrintProfile(Database db)
 		{
-			Console.ForegroundColor = ConsoleColor.Yellow;
-			Console.WriteLine("Information");
+			UIUtilities.PrintHeader("Information");
 
-			PrintSegment("Customer nr", ID);
-			PrintSegment("Organisation", OrganisationName);
-			PrintSegment("Organisation nr", OrganisationID);
-			PrintSegment("Address", GetAddress());
+			UIUtilities.PrintSegment("Customer nr", ID);
+			UIUtilities.PrintSegment("Organisation", OrganisationName);
+			UIUtilities.PrintSegment("Organisation nr", OrganisationID);
+			UIUtilities.PrintSegment("Address", GetAddress());
 
 			if (!string.IsNullOrWhiteSpace(Telephone))
-				PrintSegment("Telephone", Telephone);
+				UIUtilities.PrintSegment("Telephone", Telephone);
 
 			// Accounts
 			if (db != null)
@@ -124,23 +116,17 @@ namespace BankApp.BankObjects
 				Console.WriteLine();
 				List<Account> accounts = FetchAccounts(db);
 
-				Console.ForegroundColor = ConsoleColor.Yellow;
-				Console.WriteLine($"Accounts ({accounts.Count}):");
+				UIUtilities.PrintHeader($"Accounts ({accounts.Count})");
 
-				Console.ForegroundColor = ConsoleColor.DarkYellow;
 				if (accounts.Count == 0)
 				{
+					Console.ForegroundColor = ConsoleColor.DarkYellow;
 					Console.WriteLine("< no accounts >");
 				}
-
-				foreach (Account account in accounts)
+				else
 				{
-					PrintSegment(account.ID, $"{account.Money:C}");
+					UIUtilities.PrintSegment("Total balance", $"{accounts.Select(a => a.Money).Sum():C}");
 				}
-
-				Console.WriteLine();
-				
-				PrintSegment("Total balance", $"{accounts.Select(a => a.Money).Sum():C}");
 			}
 		}
 	}

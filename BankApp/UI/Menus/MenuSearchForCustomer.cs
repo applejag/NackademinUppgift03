@@ -11,6 +11,7 @@ namespace BankApp.UI.Menus
 		private const int RESULTS_COUNT = 9;
 		public string Title { get; } = "Open customer page";
 		public bool Done { get; } = true;
+		public Customer Result { get; private set; }
 
 		private readonly InputGroup inputGroup;
 		private readonly TextField elementInput;
@@ -31,7 +32,7 @@ namespace BankApp.UI.Menus
 			elementsCustomers = new CustomerButton[RESULTS_COUNT];
 			for (var i = 0; i < elementsCustomers.Length; i++)
 			{
-				elementsCustomers[i] = new CustomerButton {Disabled = true};
+				elementsCustomers[i] = new CustomerButton {Disabled = true, Padding = false};
 				inputGroup.AddElement(elementsCustomers[i]);
 			}
 
@@ -46,6 +47,7 @@ namespace BankApp.UI.Menus
 		public void Run()
 		{
 			// Reset
+			Result = null;
 			elementInput.Result = string.Empty;
 			inputGroup.Selected = elementInput;
 
@@ -58,7 +60,7 @@ namespace BankApp.UI.Menus
 			Element selected = inputGroup.Selected;
 			if (selected is CustomerButton customerButton)
 			{
-				MenuMain.RunMenuItem(new MenuCustomerPage(customerButton.customer, db));
+				Result = customerButton.customer;
 			}
 
 		}

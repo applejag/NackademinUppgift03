@@ -70,11 +70,14 @@
     <Compile Include="UI\Elements\Element.cs" />
     <Compile Include="UI\MenuMain.cs" />
     <Compile Include="UI\Menus\IMenuItem.cs" />
+    <Compile Include="UI\Menus\MenuAccountTransfer.cs" />
     <Compile Include="UI\Menus\MenuCreateCustomer.cs" />
     <Compile Include="UI\Menus\MenuCustomerPage.cs" />
     <Compile Include="UI\Menus\MenuLoadDatabase.cs" />
     <Compile Include="UI\Menus\MenuAccountPage.cs" />
+    <Compile Include="UI\Menus\MenuSearchForAccount.cs" />
     <Compile Include="UI\Menus\MenuSearchForCustomer.cs" />
+    <Compile Include="UI\UIUtilities.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

@@ -9,9 +9,14 @@ namespace BankApp.BankObjects
 	{
 		public uint ID { get; protected set; }
 
-		public static uint GenerateUniqueID(IEnumerable<Identified> existing)
+		public void GenerateUniqueID(IEnumerable<Identified> existing)
 		{
-			return existing.Select(i => i.ID).Max() + 1;
+			GenerateUniqueID(existing.Select(i => i.ID));
+		}
+
+		public void GenerateUniqueID(IEnumerable<uint> existing)
+		{
+			ID = existing.Max() + 1;
 		}
 	}
 }
