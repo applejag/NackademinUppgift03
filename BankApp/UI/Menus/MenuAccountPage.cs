@@ -1,5 +1,6 @@
 ﻿using System;
 using BankApp.BankObjects;
+using BankApp.Exceptions;
 using BankApp.UI.Elements;
 
 namespace BankApp.UI.Menus
@@ -60,7 +61,14 @@ namespace BankApp.UI.Menus
 				}
 				else if (accountTarget != null)
 				{
-					MenuMain.RunMenuItem(new MenuAccountTransfer(db, account, accountTarget));
+					try
+					{
+						MenuMain.RunMenuItem(new MenuAccountTransfer(db, account, accountTarget));
+					}
+					catch (TransferException e)
+					{
+						ErrorMessage = e.Message;
+					}
 				}
 			}
 			else if (selected == elementCloseAccount)

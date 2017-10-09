@@ -8,7 +8,7 @@ using BankApp.UI;
 
 namespace BankApp.BankObjects
 {
-	public sealed class Customer : Identified, ISerializable, ISearchable
+	public sealed class Customer : Identified, ISerializable
 	{
 		public string OrganisationID { get; set; }
 		public string OrganisationName { get; set; }
@@ -82,6 +82,14 @@ namespace BankApp.BankObjects
 		public List<Account> FetchAccounts(Database db)
 		{
 			return db.Accounts.FindAll(a => a.CustomerID == ID);
+		}
+
+		public Account CreateAccount(Database db)
+		{
+			var account = new Account(this);
+			account.GenerateUniqueID(db.Accounts);
+			db.Accounts.Add(account);
+			return account;
 		}
 
 		private string GetAddress()

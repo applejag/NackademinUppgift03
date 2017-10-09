@@ -8,7 +8,7 @@ using BankApp.UI;
 
 namespace BankApp.BankObjects
 {
-	public sealed class Account : Identified, ISerializable, ISearchable
+	public sealed class Account : Identified, ISerializable
 	{
 		public uint CustomerID { get; private set; }
 		public decimal Money { get; private set; }
@@ -74,18 +74,21 @@ namespace BankApp.BankObjects
 
 		public Customer FetchCustomer(Database db)
 		{
-			return db.Customers.SingleOrDefault(c => c.ID == CustomerID);
+			return db?.Customers.SingleOrDefault(c => c.ID == CustomerID);
 		}
 		
-		public string GetSearchDisplay()
+		public string GetSearchDisplay(Database db)
 		{
-			return $"{ID}: {Money}";
+			Customer customer = FetchCustomer(db);
+			return customer != null
+				? $"{customer.OrganisationName} ({customer.OrganisationID}), Account {ID}: {Money:C}"
+				: $"{ID}: {Money:C}";
 		}
 
-		public string GetSearchQueried()
+		public string GetSearchQueried(Database db)
 		{
 			return string.Join("\n",
-				ID, CustomerID
+				ID, CustomerID, FetchCustomer(db)?.GetSearchQueried()
 			);
 		}
 
@@ -96,15 +99,11 @@ namespace BankApp.BankObjects
 			UIUtilities.PrintSegment("Account nr", ID);
 			UIUtilities.PrintSegment("Balance", $"{Money:C}");
 			
-			// Accounts
-			if (db != null)
-			{
-				Console.WriteLine();
-				Customer customer = FetchCustomer(db);
+			Console.WriteLine();
+			UIUtilities.PrintHeader("Owning customer");
 
-				UIUtilities.PrintHeader("Owning customer");
-				UIUtilities.PrintSegment("Customer nr", customer.GetSearchDisplay());
-			}
+			Customer customer = FetchCustomer(db);
+			UIUtilities.PrintSegment("Customer", customer?.GetSearchDisplay() ?? "N/A");
 		}
 	}
 }

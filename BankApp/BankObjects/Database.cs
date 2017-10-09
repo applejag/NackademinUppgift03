@@ -37,41 +37,35 @@ namespace BankApp
 
 		public List<Customer> SearchCustomers(string query)
 		{
-			return Search(Customers, query).OrderBy(i => i.ID).ToList();
+			return Search(Customers, query, customer => customer.GetSearchQueried()).OrderBy(i => i.ID).ToList();
 		}
 
 		public List<Account> SearchAccounts(string query)
 		{
-			return Search(Accounts, query).OrderBy(i => i.ID).ToList();
+			return Search(Accounts, query, account => account.GetSearchQueried(this)).OrderBy(i => i.ID).ToList();
 		}
 
-		public List<ISearchable> SearchCustomersAndAccounts(string query)
+		public static List<T> Search<T>(IEnumerable<T> list, string query, Func<T, string> selector)
 		{
-			var all = new List<ISearchable>();
-			all.AddRange(Customers);
-			all.AddRange(Accounts);
-
-			return Search(all, query);
-		}
-
-		public static List<T> Search<T>(IEnumerable<T> list, string query) where T : ISearchable
-		{
+			// Errors
 			if (list == null) throw new ArgumentNullException(nameof(list));
 			T[] array = list.ToArray();
 			if (query == null) throw new ArgumentNullException(nameof(list));
 			if (string.IsNullOrWhiteSpace(query)) return new List<T>();
 			if (array.Length == 0) return new List<T>();
 
+			// Convert to anon-object array
 			var items = array.Where(x => x != null).Select(x => new
 			{
 				item = x,
-				search = x.GetSearchQueried().ToLower()
+				search = selector(x).ToLower()
 			}).ToArray();
 
+			// Search algo
 			string[] words = query.ToLower().Split();
 
 			List<T> allMatches = null;
-
+			
 			foreach (string word in words)
 			{
 				var wordMatches = new List<T>();

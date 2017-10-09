@@ -75,10 +75,7 @@ namespace BankApp.UI.Menus
 			else if (selected == elementNewAccount)
 			{
 				// Create account
-				var account = new Account(customer);
-				account.GenerateUniqueID(db.Accounts);
-
-				db.Accounts.Add(account);
+				customer.CreateAccount(db);
 				Done = false;
 			}
 			else if (selected == elementBack)

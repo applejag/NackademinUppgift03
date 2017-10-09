@@ -77,7 +77,7 @@ namespace BankApp.UI.Menus
 					Account account = searchResults[i];
 
 					elementsAccounts[i].Disabled = false;
-					elementsAccounts[i].Name = account.GetSearchDisplay();
+					elementsAccounts[i].Name = account.GetSearchDisplay(db);
 					elementsAccounts[i].account = account;
 				}
 				else
