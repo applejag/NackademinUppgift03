@@ -26,9 +26,13 @@ namespace BankApp.IO
 
 		public FileRow(params object[] args)
 		{
-			string[] strArgs = args.Select(d => 
-				Convert.ToString(d, CultureInfo.InvariantCulture).Replace(";", string.Empty)
-			).ToArray();
+			string[] strArgs = args.Select(d =>
+			{
+				if (d is Enum e) return Convert.ToInt32(e).ToString(CultureInfo.InvariantCulture);
+				if (d is DateTimeOffset dto) return dto.ToUnixTimeSeconds().ToString(CultureInfo.InvariantCulture);
+				if (d is DateTime dt) return new DateTimeOffset(dt).ToUnixTimeSeconds().ToString(CultureInfo.InvariantCulture);
+				return Convert.ToString(d, CultureInfo.InvariantCulture).Replace(";", string.Empty);
+			}).ToArray();
 
 			dataQueue = new Queue<string>(strArgs);
 			Source = string.Join(";", strArgs);
@@ -129,7 +133,56 @@ namespace BankApp.IO
 				throw new ParseRowException(typeof(int), data, Index - 1, e);
 			}
 		}
-		
+
+		public T TakeEnum<T>()
+		{
+			if (Count == 0) throw new ParseRowException(typeof(T), null, Index);
+
+			string data = dataQueue.Dequeue();
+			try
+			{
+				int id = int.Parse(data, CultureInfo.InvariantCulture);
+				
+				return (T)Enum.ToObject(typeof(T), id);
+			}
+			catch (Exception e)
+			{
+				throw new ParseRowException(typeof(T), data, Index - 1, e);
+			}
+		}
+
+		public DateTime TakeDateTime()
+		{
+			if (Count == 0) throw new ParseRowException(typeof(DateTime), null, Index);
+
+			string data = dataQueue.Dequeue();
+			try
+			{
+				long time = long.Parse(data, CultureInfo.InvariantCulture);
+				return DateTimeOffset.FromUnixTimeSeconds(time).DateTime;
+			}
+			catch (Exception e)
+			{
+				throw new ParseRowException(typeof(DateTime), data, Index - 1, e);
+			}
+		}
+
+		public DateTimeOffset TakeDateTimeOffset()
+		{
+			if (Count == 0) throw new ParseRowException(typeof(DateTimeOffset), null, Index);
+
+			string data = dataQueue.Dequeue();
+			try
+			{
+				long time = long.Parse(data, CultureInfo.InvariantCulture);
+				return DateTimeOffset.FromUnixTimeSeconds(time);
+			}
+			catch (Exception e)
+			{
+				throw new ParseRowException(typeof(DateTimeOffset), data, Index - 1, e);
+			}
+		}
+
 		public void Close()
 		{
 			if (Count != 0)

@@ -16,7 +16,7 @@ namespace BankApp.BankObjects
 
 		public void GenerateUniqueID(IEnumerable<uint> existing)
 		{
-			ID = existing.Max() + 1;
+			ID = existing.DefaultIfEmpty(0u).Max() + 1u;
 		}
 	}
 }

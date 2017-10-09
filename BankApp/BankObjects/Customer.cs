@@ -81,14 +81,13 @@ namespace BankApp.BankObjects
 
 		public List<Account> FetchAccounts(Database db)
 		{
-			return db.Accounts.FindAll(a => a.CustomerID == ID);
+			return db?.Accounts.FindAll(a => a.CustomerID == ID) ?? new List<Account>();
 		}
 
 		public Account CreateAccount(Database db)
 		{
 			var account = new Account(this);
-			account.GenerateUniqueID(db.Accounts);
-			db.Accounts.Add(account);
+			db.AddAccount(account);
 			return account;
 		}
 
@@ -119,22 +118,19 @@ namespace BankApp.BankObjects
 				UIUtilities.PrintSegment("Telephone", Telephone);
 
 			// Accounts
-			if (db != null)
+			Console.WriteLine();
+			List<Account> accounts = FetchAccounts(db);
+
+			UIUtilities.PrintHeader($"Accounts ({accounts.Count})");
+
+			if (accounts.Count == 0)
 			{
-				Console.WriteLine();
-				List<Account> accounts = FetchAccounts(db);
-
-				UIUtilities.PrintHeader($"Accounts ({accounts.Count})");
-
-				if (accounts.Count == 0)
-				{
-					Console.ForegroundColor = ConsoleColor.DarkYellow;
-					Console.WriteLine("< no accounts >");
-				}
-				else
-				{
-					UIUtilities.PrintSegment("Total balance", $"{accounts.Select(a => a.Money).Sum():C}");
-				}
+				Console.ForegroundColor = ConsoleColor.DarkYellow;
+				Console.WriteLine("< no accounts >");
+			}
+			else
+			{
+				UIUtilities.PrintSegment("Total balance", $"{accounts.Select(a => a.Money).Sum():C}");
 			}
 		}
 	}

@@ -53,7 +53,6 @@ namespace BankApp.UI.Menus
 			if (Result == null)
 			{
 				Result = new Customer();
-				Result.GenerateUniqueID(db.Customers);
 			}
 
 			// Transfer data from customer to fields
@@ -93,8 +92,9 @@ namespace BankApp.UI.Menus
 			}
 			else
 			{
+				// If we're editing existing customer
 				if (!db.Customers.Contains(Result))
-					db.Customers.Add(Result);
+					db.AddCustomer(Result);
 
 				Result = null;
 			}

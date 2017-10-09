@@ -14,9 +14,9 @@ namespace BankApp.Tests
 		public void SearchForEmpty()
 		{
 			const string query = "";
-			ISearchable[] searchable = { new MockSearchable("hello\nworld") };
+			MockSearchable[] searchable = { new MockSearchable("hello\nworld") };
 
-			List<ISearchable> result = Database.Search(searchable, query);
+			List<MockSearchable> result = Database.Search(searchable, query, m => m.data);
 
 			Assert.IsNotNull(result);
 			Assert.AreEqual(0, result.Count);
@@ -26,9 +26,9 @@ namespace BankApp.Tests
 		public void SearchForWhitespace()
 		{
 			const string query = "  \t  \t \n  ";
-			ISearchable[] searchable = { new MockSearchable("hello\nworld") };
+			MockSearchable[] searchable = { new MockSearchable("hello\nworld") };
 
-			List<ISearchable> result = Database.Search(searchable, query);
+			List<MockSearchable> result = Database.Search(searchable, query, m => m.data);
 
 			Assert.IsNotNull(result);
 			Assert.AreEqual(0, result.Count);
@@ -39,9 +39,9 @@ namespace BankApp.Tests
 		public void SearchForNull()
 		{
 			const string query = null;
-			ISearchable[] searchable = { new MockSearchable("hello\nworld") };
+			MockSearchable[] searchable = { new MockSearchable("hello\nworld") };
 
-			Database.Search(searchable, query);
+			Database.Search(searchable, query, m => m.data);
 		}
 
 		[TestMethod]
@@ -49,9 +49,9 @@ namespace BankApp.Tests
 		public void SearchWithNull()
 		{
 			const string query = "";
-			const ISearchable[] searchable = null;
+			const MockSearchable[] searchable = null;
 
-			Database.Search(searchable, query);
+			Database.Search(searchable, query, m => m.data);
 		}
 
 		[TestMethod]
@@ -59,9 +59,9 @@ namespace BankApp.Tests
 		{
 			const string query = "world";
 			var obj = new MockSearchable("hello\nworld");
-			ISearchable[] searchables = { obj };
+			MockSearchable[] searchables = { obj };
 
-			List<ISearchable> result = Database.Search(searchables, query);
+			List<MockSearchable> result = Database.Search(searchables, query, m => m.data);
 
 			Assert.IsNotNull(result);
 			Assert.AreEqual(1, result.Count);
@@ -73,9 +73,9 @@ namespace BankApp.Tests
 		{
 			const string query = "\t    \n wo   r\nld   \t  ";
 			var obj = new MockSearchable("hello\nworld");
-			ISearchable[] searchables = { obj };
+			MockSearchable[] searchables = { obj };
 
-			List<ISearchable> result = Database.Search(searchables, query);
+			List<MockSearchable> result = Database.Search(searchables, query, m => m.data);
 
 			Assert.IsNotNull(result);
 			Assert.AreEqual(1, result.Count);
@@ -87,9 +87,9 @@ namespace BankApp.Tests
 		{
 			const string query = "rld";
 			var obj = new MockSearchable("hello\nworld");
-			ISearchable[] searchables = { obj };
+			MockSearchable[] searchables = { obj };
 
-			List<ISearchable> result = Database.Search(searchables, query);
+			List<MockSearchable> result = Database.Search(searchables, query, m => m.data);
 
 			Assert.IsNotNull(result);
 			Assert.AreEqual(1, result.Count);
@@ -101,9 +101,9 @@ namespace BankApp.Tests
 		{
 			const string query = "wow";
 			var obj = new MockSearchable("hello\nworld");
-			ISearchable[] searchables = { obj };
+			MockSearchable[] searchables = { obj };
 
-			List<ISearchable> result = Database.Search(searchables, query);
+			List<MockSearchable> result = Database.Search(searchables, query, m => m.data);
 
 			Assert.IsNotNull(result);
 			Assert.AreEqual(0, result.Count);
@@ -114,9 +114,9 @@ namespace BankApp.Tests
 		{
 			const string query = "rld wo";
 			var obj = new MockSearchable("hello\nworld");
-			ISearchable[] searchables = { obj };
+			MockSearchable[] searchables = { obj };
 
-			List<ISearchable> result = Database.Search(searchables, query);
+			List<MockSearchable> result = Database.Search(searchables, query, m => m.data);
 
 			Assert.IsNotNull(result);
 			Assert.AreEqual(1, result.Count);
@@ -128,9 +128,9 @@ namespace BankApp.Tests
 		{
 			const string query = "rld ce";
 			var obj = new MockSearchable("hello\nworld");
-			ISearchable[] searchables = { obj };
+			MockSearchable[] searchables = { obj };
 
-			List<ISearchable> result = Database.Search(searchables, query);
+			List<MockSearchable> result = Database.Search(searchables, query, m => m.data);
 
 			Assert.IsNotNull(result);
 			Assert.AreEqual(0, result.Count);
@@ -142,9 +142,9 @@ namespace BankApp.Tests
 			const string query = "hello";
 			var obj1 = new MockSearchable("hello\nvärld");
 			var obj2 = new MockSearchable("hello\nworld");
-			ISearchable[] searchables = { obj1, obj2 };
+			MockSearchable[] searchables = { obj1, obj2 };
 
-			List<ISearchable> result = Database.Search(searchables, query);
+			List<MockSearchable> result = Database.Search(searchables, query, m => m.data);
 
 			Assert.IsNotNull(result);
 			Assert.AreEqual(2, result.Count);
@@ -157,9 +157,9 @@ namespace BankApp.Tests
 			const string query = "rld";
 			var obj1 = new MockSearchable("hello\nvärld");
 			var obj2 = new MockSearchable("hello\nworld");
-			ISearchable[] searchables = { obj1, obj2 };
+			MockSearchable[] searchables = { obj1, obj2 };
 
-			List<ISearchable> result = Database.Search(searchables, query);
+			List<MockSearchable> result = Database.Search(searchables, query, m => m.data);
 
 			Assert.IsNotNull(result);
 			Assert.AreEqual(2, result.Count);
@@ -173,9 +173,9 @@ namespace BankApp.Tests
 			const string query = "world";
 			var obj1 = new MockSearchable("hello\nvärld");
 			var obj2 = new MockSearchable("hello\nworld");
-			ISearchable[] searchables = { obj1, obj2 };
+			MockSearchable[] searchables = { obj1, obj2 };
 
-			List<ISearchable> result = Database.Search(searchables, query);
+			List<MockSearchable> result = Database.Search(searchables, query, m => m.data);
 
 			Assert.IsNotNull(result);
 			Assert.AreEqual(1, result.Count);
@@ -188,9 +188,9 @@ namespace BankApp.Tests
 			const string query = "rld llo";
 			var obj1 = new MockSearchable("hello\nvärld");
 			var obj2 = new MockSearchable("hello\nworld");
-			ISearchable[] searchables = { obj1, obj2 };
+			MockSearchable[] searchables = { obj1, obj2 };
 
-			List<ISearchable> result = Database.Search(searchables, query);
+			List<MockSearchable> result = Database.Search(searchables, query, m => m.data);
 
 			Assert.IsNotNull(result);
 			Assert.AreEqual(2, result.Count);
@@ -204,9 +204,9 @@ namespace BankApp.Tests
 			const string query = "rld wo";
 			var obj1 = new MockSearchable("hello\nvärld");
 			var obj2 = new MockSearchable("hello\nworld");
-			ISearchable[] searchables = { obj1, obj2 };
+			MockSearchable[] searchables = { obj1, obj2 };
 
-			List<ISearchable> result = Database.Search(searchables, query);
+			List<MockSearchable> result = Database.Search(searchables, query, m => m.data);
 
 			Assert.IsNotNull(result);
 			Assert.AreEqual(1, result.Count);

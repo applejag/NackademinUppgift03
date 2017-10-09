@@ -6,6 +6,18 @@ namespace BankApp.UI.Elements
 	{
 		public int MaxLength { get; set; } = 255;
 		public int InputWidth => AvailableWidth - Name.Length - 2;
+		public Predicate<char> Validator { get; set; } = ValidatorNonControl;
+
+		public static bool ValidatorNonControl(char c)
+		{
+			return !char.IsControl(c);
+		}
+
+		public static bool ValidatorNumber(char c)
+		{
+			const string valid = "0123456789,.-";
+			return valid.IndexOf(c) != -1;
+		}
 
 		public string TrimmedResult => Result.Trim();
 		public string Result {
@@ -16,8 +28,7 @@ namespace BankApp.UI.Elements
 				UpdateInnerOffset();
 			}
 		}
-
-
+		
 		public event InputCallbackEvent Changed;
 		public event InputCallbackEvent Submit;
 
@@ -124,7 +135,7 @@ namespace BankApp.UI.Elements
 					break;
 			}
 
-			if (!char.IsControl(info.KeyChar))
+			if (Validator(info.KeyChar))
 			{
 				if (MaxLength <= 0 || Result.Length < MaxLength)
 				{

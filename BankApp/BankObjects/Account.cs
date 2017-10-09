@@ -57,24 +57,63 @@ namespace BankApp.BankObjects
 		/// </summary>
 		/// <param name="amount">Amount of cash to be removed from this account and added to the <paramref name="receiver"/> account.</param>
 		/// <param name="receiver">The receiving account.</param>
-		/// <exception cref="TransferInsufficientFundsException">Thrown if tries to transfer more than is available in this account.</exception>
-		/// <exception cref="TransferNegativeAmountException">Thrown if <paramref name="amount"/> is negative.</exception>
-		/// <exception cref="TransferInvalidReceiverException">Thrown if <paramref name="receiver"/> is null or equal to this account.</exception>
-		public void TransferMoney(decimal amount, Account receiver)
+		/// <param name="db">The database to store the transaction in.</param>
+		/// <exception cref="AccountTransferInsufficientFundsException">Thrown if tries to transfer more than is available in this account.</exception>
+		/// <exception cref="AccountTransferInvalidAmountException">Thrown if <paramref name="amount"/> is zero or negative.</exception>
+		/// <exception cref="AccountTransferInvalidReceiverException">Thrown if <paramref name="receiver"/> is null or equal to this account.</exception>
+		public void TransferMoney(decimal amount, Account receiver, IDatabase db)
 		{
-			if (receiver == null) throw new TransferInvalidReceiverException(this, null, amount);
-			if (receiver == this) throw new TransferInvalidReceiverException(this, receiver, amount);
+			if (receiver == null) throw new AccountTransferInvalidReceiverException(this, null, amount);
+			if (receiver == this) throw new AccountTransferInvalidReceiverException(this, receiver, amount);
 
-			if (amount < 0) throw new TransferNegativeAmountException(this, receiver, amount);
-			if (amount > Money) throw new TransferInsufficientFundsException(this, receiver, amount);
+			if (amount <= 0) throw new AccountTransferInvalidAmountException(this, receiver, amount);
+			if (amount > Money) throw new AccountTransferInsufficientFundsException(this, receiver, amount);
 
 			Money -= amount;
 			receiver.Money += amount;
+			db.AddTransaction(Transaction.CreateTransfer(this, receiver, amount));
+		}
+
+		/// <summary>
+		/// Insert money to this account.
+		/// </summary>
+		/// <param name="amount">Amount of cash to be inserted.</param>
+		/// <param name="db">The database to store the transaction in.</param>
+		/// <exception cref="AccountInsertInvalidAmountException">Thrown if <paramref name="amount"/> is zero or negative.</exception>
+		public void InsertMoney(decimal amount, IDatabase db)
+		{
+			if (amount <= 0) throw new AccountInsertInvalidAmountException(this, amount);
+
+			Money += amount;
+			db.AddTransaction(Transaction.CreateInsert(this, amount));
+		}
+
+		/// <summary>
+		/// Withdraw money from this account.
+		/// </summary>
+		/// <param name="amount">Amount of cash to be withdrawn.</param>
+		/// <param name="db">The database to store the transaction in.</param>
+		/// <exception cref="AccountWithdrawInsufficientFundsException">Thrown if tries to withdraw more money than is available on this account.</exception>
+		/// <exception cref="AccountWithdrawInvalidAmountException">Thrown if <paramref name="amount"/> is zero or negative.</exception>
+		public void WithdrawMoney(decimal amount, IDatabase db)
+		{
+			if (amount <= 0) throw new AccountWithdrawInvalidAmountException(this, amount);
+			if (amount > Money) throw new AccountWithdrawInsufficientFundsException(this, amount);
+
+			Money -= amount;
+			db.AddTransaction(Transaction.CreateWithdraw(this, amount));
 		}
 
 		public Customer FetchCustomer(Database db)
 		{
 			return db?.Customers.SingleOrDefault(c => c.ID == CustomerID);
+		}
+
+		public List<Transaction> FetchTransactions(Database db)
+		{
+			return db?.Transactions.Where(t =>
+				t.AccountID == ID || (t.Type == Transaction.TransactionType.Transfer && t.OtherAccountID == ID))
+				.OrderByDescending(t => t.Timestamp).ToList();
 		}
 		
 		public string GetSearchDisplay(Database db)
@@ -92,15 +131,12 @@ namespace BankApp.BankObjects
 			);
 		}
 
-		public void PrintProfile(Database db)
+		public void PrintProfile(Database db, string header = "Information")
 		{
-			UIUtilities.PrintHeader("Information");
+			UIUtilities.PrintHeader(header);
 
 			UIUtilities.PrintSegment("Account nr", ID);
 			UIUtilities.PrintSegment("Balance", $"{Money:C}");
-			
-			Console.WriteLine();
-			UIUtilities.PrintHeader("Owning customer");
 
 			Customer customer = FetchCustomer(db);
 			UIUtilities.PrintSegment("Customer", customer?.GetSearchDisplay() ?? "N/A");

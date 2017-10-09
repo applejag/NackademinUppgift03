@@ -25,6 +25,8 @@ namespace BankApp.IO
 		/// <exception cref="ParseFileException">Thrown on any parsing errors</exception>
 		public List<T> ReadSerializeableGroup<T>() where T : Identified, ISerializable, new()
 		{
+			if (reader.EndOfStream) return new List<T>();
+
 			string countString = ReadLine();
 			var list = new List<T>();
 

@@ -2,23 +2,13 @@
 
 namespace BankApp.Tests.Mocks
 {
-	public class MockSearchable : ISearchable
+	public class MockSearchable
 	{
-		private readonly string data;
+		public readonly string data;
 
 		public MockSearchable(string data)
 		{
 			this.data = data;
-		}
-
-		public string GetSearchDisplay()
-		{
-			throw new System.NotImplementedException();
-		}
-
-		public string GetSearchQueried()
-		{
-			return data;
 		}
 	}
 }

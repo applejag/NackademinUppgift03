@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using BankApp.BankObjects;
 using BankApp.Exceptions;
 using BankApp.IO;
 using BankApp.UI.Elements;
@@ -69,12 +70,11 @@ namespace BankApp.UI.Menus
 			if (files.Count <= 0) return files;
 
 			Console.ForegroundColor = ConsoleColor.Yellow;
-			Console.WriteLine("Suggested paths:");
-
-			Console.ForegroundColor = ConsoleColor.DarkYellow;
+			UIUtilities.PrintHeader("Suggested paths");
+			
 			foreach (string file in files.Skip(Math.Max(0, files.Count - 7)))
 			{
-				Console.WriteLine(file);
+				UIUtilities.PrintSegment(file);
 			}
 
 			Console.WriteLine();

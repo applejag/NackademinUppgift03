@@ -9,14 +9,16 @@ namespace BankApp.UI.Menus
 	{
 		public string Title { get; } = "Customer page";
 		public bool Done { get; private set; }
+		public string ErrorMessage { get; set; }
 
 		private readonly Database db;
 		private readonly Customer customer;
 		private readonly InputGroup inputGroup;
 
 		private AccountButton[] elementsAccounts;
-		private readonly Button elementEditCustomer = new Button("Edit customer");
-		private readonly Button elementNewAccount = new Button("Open new account");
+		private readonly Button elementEditCustomer = new Button("Edit customer") {Padding = false};
+		private readonly Button elementNewAccount = new Button("Open new account") { Padding = false };
+		private readonly Button elementRemoveCustomer = new Button("Remove customer") { Padding = false };
 		private readonly Button elementBack = new Button("Back to main menu");
 
 		public MenuCustomerPage(Database db)
@@ -46,12 +48,21 @@ namespace BankApp.UI.Menus
 
 			inputGroup.AddElement(elementEditCustomer);
 			inputGroup.AddElement(elementNewAccount);
+			inputGroup.AddElement(elementRemoveCustomer);
 			inputGroup.AddElement(elementBack);
 		}
 
 		public void Run()
 		{
 			Done = false;
+
+			if (ErrorMessage != null)
+			{
+				Console.ForegroundColor = ConsoleColor.Red;
+				Console.WriteLine(ErrorMessage);
+				Console.WriteLine();
+				ErrorMessage = null;
+			}
 
 			customer.PrintProfile(db);
 			Console.WriteLine();
@@ -76,12 +87,36 @@ namespace BankApp.UI.Menus
 			{
 				// Create account
 				customer.CreateAccount(db);
-				Done = false;
+			}
+			else if (selected == elementRemoveCustomer)
+			{
+				// Remove customer
+				RemoveCustomer();
 			}
 			else if (selected == elementBack)
 			{
 				// Back
 				Done = true;
+			}
+		}
+
+		private void RemoveCustomer()
+		{
+			const string title = "This is a permanent action. Are you sure?";
+			const string yes = "Yes, remove the customer";
+			const string no = "No, cancel";
+
+			if (UIUtilities.PromptWarning(title, yes, no) == yes)
+			{
+				try
+				{
+					db.RemoveCustomer(customer);
+					Done = true;
+				}
+				catch (ApplicationException e)
+				{
+					ErrorMessage = e.Message;
+				}
 			}
 		}
 

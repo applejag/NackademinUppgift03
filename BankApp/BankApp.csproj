@@ -48,12 +48,13 @@
     <Compile Include="BankObjects\Account.cs" />
     <Compile Include="BankObjects\Customer.cs" />
     <Compile Include="BankObjects\Database.cs" />
+    <Compile Include="BankObjects\IDatabase.cs" />
+    <Compile Include="BankObjects\Transaction.cs" />
+    <Compile Include="Exceptions\AccountInsertException.cs" />
+    <Compile Include="Exceptions\AccountWithdrawException.cs" />
     <Compile Include="Exceptions\ParseFileException.cs" />
     <Compile Include="Exceptions\ParseRowException.cs" />
-    <Compile Include="Exceptions\TransferException.cs" />
-    <Compile Include="Exceptions\TransferInsufficientFundsException.cs" />
-    <Compile Include="Exceptions\TransferNegativeAmountException.cs" />
-    <Compile Include="Exceptions\TransferInvalidReceiverException.cs" />
+    <Compile Include="Exceptions\AccountTransferException.cs" />
     <Compile Include="IO\FileReader.cs" />
     <Compile Include="IO\FileWriter.cs" />
     <Compile Include="IO\FileRow.cs" />
@@ -69,6 +70,8 @@
     <Compile Include="UI\Elements\Element.cs" />
     <Compile Include="UI\MenuMain.cs" />
     <Compile Include="UI\Menus\IMenuItem.cs" />
+    <Compile Include="UI\Menus\MenuAccountWithdraw.cs" />
+    <Compile Include="UI\Menus\MenuAccountInsert.cs" />
     <Compile Include="UI\Menus\MenuAccountTransfer.cs" />
     <Compile Include="UI\Menus\MenuCreateCustomer.cs" />
     <Compile Include="UI\Menus\MenuCustomerPage.cs" />

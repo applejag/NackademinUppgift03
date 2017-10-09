@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using BankApp.UI.Elements;
 
 namespace BankApp.UI
@@ -12,6 +13,7 @@ namespace BankApp.UI
 		private readonly List<Element> elements = new List<Element>();
 		private int selectedIndex;
 		private int position;
+		private int bottom;
 		private bool running;
 
 		public Element Selected
@@ -117,7 +119,8 @@ namespace BankApp.UI
 			// Empty the stream
 			while (Console.KeyAvailable) Console.ReadKey(true);
 			Console.ResetColor();
-			Console.SetCursorPosition(0, position + elements.Count * 2 - 1);
+			
+			Console.SetCursorPosition(0, bottom + VERT_PADDING);
 		}
 
 		private void Draw()
@@ -166,6 +169,8 @@ namespace BankApp.UI
 			// Draw selected last
 			if (selectedX != -1 && selectedY != -1)
 				selected?.Redraw(selectedX, selectedY);
+
+			bottom = y;
 		}
 
 		private void Update()

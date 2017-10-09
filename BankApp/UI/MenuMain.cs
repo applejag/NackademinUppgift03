@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Text;
+using BankApp.BankObjects;
 using BankApp.Exceptions;
 using BankApp.UI.Elements;
 using BankApp.UI.Menus;
@@ -56,7 +57,7 @@ namespace BankApp.UI
 				const string yes = "Yes, discard changes";
 				const string no = "No, back to main menu";
 
-				if (UIUtilities.PromptActions(title, yes, no) == yes)
+				if (UIUtilities.PromptWarning(title, yes, no) == yes)
 					Done = true;
 			}
 			else

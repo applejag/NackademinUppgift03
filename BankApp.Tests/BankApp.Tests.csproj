@@ -48,8 +48,11 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AccountWithdrawTests.cs" />
+    <Compile Include="AccountInsertTests.cs" />
     <Compile Include="AccountTransferTests.cs" />
     <Compile Include="CustomerSerializeTests.cs" />
+    <Compile Include="Mocks\MockDatabase.cs" />
     <Compile Include="Mocks\MockSearchable.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="AccountSerializeTests.cs" />

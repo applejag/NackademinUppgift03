@@ -6,27 +6,25 @@ using BankApp.UI.Elements;
 
 namespace BankApp.UI.Menus
 {
-	public class MenuAccountTransfer : IMenuItem
+	public class MenuAccountWithdraw : IMenuItem
 	{
-		public string Title { get; } = "Transfer money";
+		public string Title { get; } = "Withdraw money";
 		public bool Done => ErrorMessage == null;
 		public string ErrorMessage { get; set; }
 
+		private readonly Account account;
 		private readonly Database db;
-		private readonly Account accountSource;
-		private readonly Account accountTarget;
 
 		private readonly InputGroup inputGroup;
 
 		private readonly TextField elementInput = new TextField("Amount") {Validator = TextField.ValidatorNumber};
-		private readonly Button elementOK = new Button("Transfer");
+		private readonly Button elementOK = new Button("Withdraw");
 		private readonly Button elementCancel = new Button("Cancel");
 
-		public MenuAccountTransfer(Database db, Account accountSource, Account accountTarget)
+		public MenuAccountWithdraw(Account account, Database db)
 		{
 			this.db = db;
-			this.accountSource = accountSource;
-			this.accountTarget = accountTarget;
+			this.account = account;
 
 			inputGroup = new InputGroup(
 				elementInput,
@@ -45,28 +43,27 @@ namespace BankApp.UI.Menus
 				ErrorMessage = null;
 			}
 
-			accountSource.PrintProfile(db, "Sending account");
-			Console.WriteLine();
-			accountTarget.PrintProfile(db, "Receiving account");
+			account.PrintProfile(db);
 			Console.WriteLine();
 
-			UIUtilities.PrintHeader("Transfer money");
+			UIUtilities.PrintHeader("Withdraw money");
+
 			inputGroup.Run();
 			Element selected = inputGroup.Selected;
 
 			if (selected == elementOK)
 			{
-				string result = elementInput.TrimmedResult.Replace(',', '.');
+				string result = elementInput.TrimmedResult.Replace(',','.');
 				if (decimal.TryParse(result, NumberStyles.AllowDecimalPoint | NumberStyles.AllowLeadingSign,
 					CultureInfo.InvariantCulture, out decimal amount))
 				{
 					try
 					{
-						accountSource.TransferMoney(amount, accountTarget, db);
+						account.WithdrawMoney(amount, db);
 
-						UIUtilities.PromptSuccess($"Successfully transferred {amount:C}");
+						UIUtilities.PromptSuccess($"Successfully withdrew {amount:C}");
 					}
-					catch (AccountTransferException e)
+					catch (AccountWithdrawException e)
 					{
 						ErrorMessage = e.Message;
 					}
