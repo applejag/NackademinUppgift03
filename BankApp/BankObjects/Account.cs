@@ -188,7 +188,7 @@ namespace BankApp.BankObjects
 			if (CreditRate > 0)
 				UIUtilities.PrintSegment("Credit yearly rate", $"{CreditRate:P}");
 			if (CreditLimit > 0)
-				UIUtilities.PrintSegment("Credit limit", $"{CreditLimit:d}");
+				UIUtilities.PrintSegment("Credit limit", $"{CreditLimit:c}");
 
 			Customer customer = FetchCustomer(db);
 			UIUtilities.PrintSegment("Customer", customer?.GetSearchDisplay() ?? "N/A");
